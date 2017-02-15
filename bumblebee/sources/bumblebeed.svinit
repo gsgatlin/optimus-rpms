@@ -1,0 +1,65 @@
+#!/bin/sh
+#
+# : bumblebeed,v 1.0 2012/05/06 gsgatlin
+# Startup script for the bumblebeed daemon, RedHat style.
+#
+# chkconfig: - 50 10
+# description: Bumblebee supporting nVidia Optimus cards
+
+. /etc/init.d/functions
+
+
+NAME=bumblebeed
+BIN='/usr/sbin/bumblebeed'
+
+
+
+[ -x "$BIN" ]  || exit 1
+
+RETVAL=0
+
+start(){
+	echo -n $"Starting bumblebeed daemon: "
+	daemon "$BIN" --daemon
+	RETVAL=$?
+	echo
+	touch /var/lock/subsys/bumblebeed
+	return $RETVAL
+}
+
+stop(){
+	echo -n $"Stopping bumblebeed daemon: "
+	killproc "$NAME"
+	echo
+	RETVAL=$?
+	rm -f /var/lock/subsys/bumblebeed
+	return $RETVAL
+}
+
+restart(){
+	stop
+	start
+}
+
+case "$1" in
+	start)
+		start
+		;;
+	stop)
+		stop
+		;;
+	restart)
+		restart
+		;;
+	status)
+		status bumblebeed
+		;;
+	condrestart)
+		[ -e /var/lock/subsys/bumblebeed ] && restart
+		;;
+	*)
+		echo $"Usage: $0 {start|stop|status|restart|condrestart}"
+		RETVAL=1
+esac
+
+exit $RETVAL

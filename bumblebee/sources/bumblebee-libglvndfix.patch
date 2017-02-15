@@ -1,0 +1,15 @@
+diff -up bumblebee-3.2.1/src/optirun.c.libglvndfix bumblebee-3.2.1/src/optirun.c
+--- bumblebee-3.2.1/src/optirun.c.libglvndfix	2017-02-09 14:52:51.003044427 -0500
++++ bumblebee-3.2.1/src/optirun.c	2017-02-09 15:12:04.901631977 -0500
+@@ -203,6 +203,11 @@ static int run_primus(int argc, char **a
+ 
+   /* primus starts the X server when needed, fixes long-standing fork issue */
+   setenv("BUMBLEBEE_SOCKET", bb_config.socket_path, 1);
++  
++  /* primus needs variable workaround for libglvnd changes in mesa library 
++     on some distros (fedora) */
++
++  setenv("__GLVND_DISALLOW_PATCHING", "1", 0);
+ 
+   /* set LD_LIBRARY_PATH to primus_ld_path plus ld_path plus current LD_LIBRARY_PATH */
+   setenv("PRIMUS_DISPLAY", bb_config.x_display, 0);
