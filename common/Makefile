@@ -1,10 +1,9 @@
-.PHONY: clean install
+.PHONY: clean install all
 .SUFFIXES: .spec .rpm
 all: build *.src.rpm dist/*.fc24.i686.rpm dist/*.fc24.x86_64.rpm \
 dist/*.fc25.i686.rpm dist/*.fc25.x86_64.rpm dist/*.fc26.i686.rpm \
 dist/*.fc26.x86_64.rpm dist/*.el6.i686.rpm dist/*.el6.x86_64.rpm \
 dist/*.el7.centos.x86_64.rpm
-	touch all
 
 install:
 	@echo "Error: Cannot stage these rpms in this Makefile"
