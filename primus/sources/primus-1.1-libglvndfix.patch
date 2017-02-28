@@ -1,0 +1,12 @@
+diff -up primus-master/primusrun.libglvndfix primus-master/primusrun
+--- primus-master/primusrun.libglvndfix	2017-02-07 14:21:53.001166518 -0500
++++ primus-master/primusrun	2017-02-07 14:29:24.884925994 -0500
+@@ -1,5 +1,8 @@
+ #!/bin/bash
+ 
++# required for libglvnd
++export __GLVND_DISALLOW_PATCHING=1
++
+ # Readback-display synchronization method
+ # 0: no sync, 1: D lags behind one frame, 2: fully synced
+ # export PRIMUS_SYNC=${PRIMUS_SYNC:-0}
