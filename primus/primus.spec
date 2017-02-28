@@ -2,7 +2,7 @@ Summary:        Faster OpenGL offloading for Bumblebee
 Name:		primus
 Version:        1.1.03282015
 URL:            https://github.com/amonakov/primus
-Release:        4%{?dist}
+Release:        5%{?dist}
 License:        ISC
 Group:          System Environment/Base
 BuildRoot:	%{_tmppath}/%{name}-%{version}-build
@@ -19,6 +19,11 @@ Requires:       mesa-libGL%{?_isa} >= 8.0.4
 Requires:	mesa-dri-drivers%{?_isa} >= 8.0.4
 %if 0%{?rhel} == 6
 Requires:       libudev%{?_isa}
+BuildRequires:  devtoolset-2-runtime
+BuildRequires:  devtoolset-2-gcc
+BuildRequires:  devtoolset-2-binutils
+BuildRequires:  devtoolset-2-gcc-c++
+BuildRequires:  devtoolset-2-libstdc++-devel
 %else
 Requires:       systemd-libs%{?_isa}
 %endif
@@ -44,6 +49,10 @@ place.
 %patch2 -p1 -b .libglvndfix
 
 %build
+
+%if 0%{?rhel} == 6
+. /opt/rh/devtoolset-2/enable
+%endif 
 
 LIBDIR=%{_lib} make %{?_smp_mflags} CFLAGS="%{optflags}"
 
@@ -77,6 +86,9 @@ install -m 644 $RPM_BUILD_DIR/%{name}-master/primusrun.1  $RPM_BUILD_ROOT/%{_man
 %{_bindir}/primusrun
 
 %changelog
+* Tue Feb 28 2017 Gary Gatling <gsgatlin@ncsu.edu> - 1.1.03282015-5
+- Make package use devtoolset-2 in special mock config on el6.
+
 * Wed Feb 8 2017 Gary Gatling <gsgatlin@ncsu.edu> - 1.1.03282015-4
 - Add primus-1.1-libglvndfix.patch because of addition of libglvnd
   to fedora 26 and possibly fedora 25.
