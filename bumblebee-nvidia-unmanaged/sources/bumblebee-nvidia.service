@@ -1,0 +1,10 @@
+[Unit]
+Description=Compiling NVidia Driver
+After=multi-user.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/sbin/bumblebee-nvidia
+[Install]
+WantedBy=graphical.target
