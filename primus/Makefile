@@ -1,1 +1,1 @@
-../common/Makefile.x86
+../common/Makefile.x86-6-devtoolset-2
