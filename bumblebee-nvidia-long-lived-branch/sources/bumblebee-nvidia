@@ -1,0 +1,637 @@
+#!/bin/bash
+
+# bumblebee-nvidia: A shell script wrapper to automate the install of the 
+# nvidia binary driver in a way that won't break LibGL from mesa on the 
+# integrated (Intel) driver. 3D support must work properly on the integrated 
+# display if virtualGL or primus is to work. virtualGL or primus must work 
+# for "optirun" or "primusrun" to work.
+#
+# Anyone who finds this bash script useful is free to adapt this or or use it 
+# however they would like to. bumblebee-nvidia is placed in the public domain 
+# by me. I created this mainly as a solution for myself but I wanted to share 
+# it with others in case they found it to be useful.
+#
+# The NVidia blob must be placed in /etc/sysconfig/nvidia/ for this script
+# to do its thing. It can be downloaded from:
+# http://www.nvidia.com/object/unix.html
+#
+# This script is intended for Red Hat type systems. It was tested on several
+# different fedoras and RHEL 6/7.
+#
+# Gary Scott Gatling <gsgatlin@ncsu.edu> 2/27/2017
+# Gilboa Davara <gilboad@gmail.com> 7/28/2013 - Added support for kernels newer 
+# then 3.10 and a mechanism for adding in various patches to the blob.
+# Fahad Alduraibi 10/21/2015 add idea for 
+# /etc/bumblebee/bumblebee-nvidia-sign.conf for key signing.
+
+# Service now ticket INC2643219
+export LC_ALL=C
+
+EXPECTED_ARGS=2
+E_BADARGS=65
+if [ $# -gt $EXPECTED_ARGS ] || [ "$1" = "--help" ] || [ "$1" = "-h" ] ; then
+     echo "Usage: `basename $0` [option]"
+     echo "-h, --help                   Show this usage information and exit."
+     echo "-c, --check                  Check if bbswitch and nvidia modules compiled ok."
+     echo "-f, --force                  Compile driver even if its already been compiled"
+     echo "                             for current running kernel."
+     echo "-u --uninstall               Un-install driver."
+     echo "-d --debug                   Show all output from the nvidia installer blob."
+     echo ""
+     echo "Please note: This script can only be run as superuser. (root)"
+     echo "The NVidia blob must be placed in /etc/sysconfig/nvidia/ to work."
+     echo ""
+     echo "Documentation on bumblebee for RHEL / CentOS / fedora can be found at:"
+     echo "https://www.linux.ncsu.edu/bumblebee/"
+     echo ""
+     exit $E_BADARGS
+fi
+
+# Do the sanity checks before we need to be root...
+
+# x86_64 or i386?
+systemarch=`uname -i`
+
+if [ "$systemarch" == "x86_64" ]; then
+bumblebee_libdir="lib64"
+else 
+bumblebee_libdir="lib"
+fi
+
+
+# Validate the single /etc/sysconfig/nvidia/NVIDIA-Linux-*.run file. If it is missing
+# or if there are too many, then exit before we do anything.
+
+
+blobcount=`ls /etc/sysconfig/nvidia/NVIDIA-Linux-*.run  2>/dev/null | wc -l | cut -c1`
+
+if [ $blobcount == 0 ]; then
+     echo "Error: No Nvidia blob in /etc/sysconfig/nvidia/"
+     exit 1
+fi
+
+if test $blobcount -gt 1
+then
+    echo "Error: Too many NVidia blobs in /etc/sysconfig/nvidia/"
+    echo "Blob count = $blobcount."
+    exit 1
+fi
+
+# required if video driver was upgraded by rpm package manger...
+if [ -e /etc/sysconfig/nvidia/compile-nvidia-driver ]; then
+     echo "--force compile selected via /etc/sysconfig/nvidia/compile-nvidia-driver"
+     forcenvidia="TRUE"
+
+fi
+
+
+
+if [ "$1" = "-d" ] || [ "$1" = "--debug" ] || [ "$2" = "-d" ] || [ "$2" = "--debug" ]; then
+
+     echo "--debug mode selected."
+     forcedebug="TRUE"
+
+fi
+
+if [ "$1" = "-c" ] || [ "$1" = "--check" ] || [ "$2" = "-c" ] || [ "$2" = "--check" ]; then
+
+     if [  -n "$forcedebug" ]; then
+          echo "--check compile selected."
+     fi
+     
+
+# Lets add a checking system so anyone knows if this worked or not...
+
+#if [ ! -e "/lib/modules/`uname -r`/kernel/drivers/misc/.nvidia_installed" ]; then
+if [ ! -e "/etc/sysconfig/nvidia/`uname -r`-installed" ]; then
+echo "Warning! This NVIDIA driver has not compiled successfully before on kernel `uname -r`!"
+fail="TRUE"
+fi
+
+if [ ! -e "/usr/$bumblebee_libdir/nvidia-bumblebee/libGL.so.1" ]; then
+echo "Warning! This NVIDIA driver userland"
+echo " /usr/lib64/nvidia-bumblebee/libGL.so.1 library is missing!"
+fail="TRUE"
+fi
+
+#NVIDIA module modinfo check here...
+
+mynvidiamodcheck=$((modinfo nvidia | grep ERROR) 2>&1)
+
+echo ""
+echo ""
+
+if [ "$mynvidiamodcheck" = "" ];then
+echo "nvidia.ko compiled into in the kernel tree ok."
+else
+echo "Warning! nvidia.ko was not created in in the kernel tree!"
+fail="TRUE"
+fi
+
+echo "modinfo output for NVIDIA:"
+echo ""
+modinfo nvidia
+echo ""
+
+echo "Check bbswitch kernel module..."
+echo ""
+
+mybbswitchlsmodcheck=`lsmod | grep bbswitch`
+
+if [ "$mybbswitchlsmodcheck" = "" ];then
+echo "Warning! bbswitch is not loaded into this kernel!"
+bbfail="TRUE"
+else
+echo "bbswitch is loaded into the current kernel ok."
+echo ""
+fi
+
+if [  -n "$bbfail" ]; then
+echo "Since bbswitch is not loaded into the kernel, lets do additional checks on it..."
+
+oldbbpkgcheck=`rpm -q --qf "%{version}\n" bbswitch`
+
+if [ "$oldbbpkgcheck" != "package bbswitch is not installed" ];then
+echo "obsolete rpm package bbswitch is installed."
+echo "It is suggested you remove bbswitch and instead install bbswitch-dkms"
+echo "First, remove bbswitch: rpm -e bbswitch"
+echo "Fedora:                 dnf install bbswitch-dkms"
+echo "RHEL/CentOS:            yum install bbswitch-dkms"
+fi
+
+
+bbpkgcheck=`rpm -q --qf "%{version}\n" bbswitch-dkms`
+
+if [ "$bbpkgcheck" = "package bbswitch-dkms is not installed" ];then
+echo "bbswitch rpm package was not installed!"
+bbpkgcheck="BBSWITCH_VERSION_NUMBER"
+fi
+
+dkmspkgcheck=`rpm -q --qf "%{version}\n" dkms`
+
+if [ "$dkmspkgcheck" = "package dkms is not installed" ];then
+echo "dkms rpm package was not installed!"
+else
+echo "dkms status bbswitch output:"
+dkms status bbswitch
+fi
+
+echo ""
+echo "if the bbswitch package is installed, you may wish to try:"
+echo "/usr/sbin/dkms add -m bbswitch -v $bbpkgcheck"
+echo "/usr/sbin/dkms build -m bbswitch -v $bbpkgcheck"
+echo "/usr/sbin/dkms install -m bbswitch -v $bbpkgcheck"
+echo "/sbin/modprobe bbswitch"
+echo ""
+echo "To get clues as to why bbswitch is failing on this kernel..."
+fi
+
+if [  -n "$fail" ]; then
+echo "All NVIDIA checks completed, but there were 1 or more failures..."
+echo "Try running this script with the --debug option to find clues about what has"
+echo "gone wrong with the NVIDIA driver compile process."
+exit 1
+else
+echo "All checks completed successfully! NVIDIA driver appears to have compiled ok."
+echo ""
+echo "Documentation on bumblebee for RHEL / CentOS / fedora can be found at:"
+echo "https://www.linux.ncsu.edu/bumblebee/"
+echo ""
+exit 0
+fi
+fi
+
+# End of tests section
+
+if [[ $EUID -ne 0 ]]; then
+     echo "This script must be run as root. Exiting..."
+     exit 1 
+fi
+
+
+if [ "$1" = "-f" ] || [ "$1" = "--force" ] || [ "$2" = "-f" ] || [ "$2" = "--force" ]; then
+
+     if [  -n "$forcedebug" ]; then
+          echo "--force compile selected."
+     fi
+     forcenvidia="TRUE"
+
+fi
+
+
+if [ "$1" = "-u" ] || [ "$1" = "--uninstall" ] || [ "$2" = "-u" ] || [ "$2" = "--uninstall" ]; then
+     if [  -n "$forcedebug" ]; then
+          echo "--uninstall driver selected."
+     fi
+     \rm -rf /lib/modules/*/kernel/drivers/misc/.nvidia_installed > /dev/null 2>&1
+     \rm -rf "/etc/sysconfig/nvidia/*-installed" > /dev/null 2>&1
+
+     chattr +i /usr/lib/libGL.so.1.* > /dev/null 2>&1
+     chattr +i /usr/lib/libGL.so.1.2.0  > /dev/null 2>&1
+     chattr +i /usr/lib/libGL.so.1.2 > /dev/null 2>&1
+     chattr +i /usr/lib/libEGL.so.1 > /dev/null 2>&1
+     chattr +i /usr/lib/libEGL.so.1.0.0 > /dev/null 2>&1
+     chattr +i /usr/lib/libGLESv2.so.2.* > /dev/null 2>&1
+     chattr +i /usr/lib/libvdpau.so.1.* > /dev/null 2>&1
+     chattr +i /usr/lib/libvdpau.so.1.0.0 > /dev/null 2>&1
+     chattr +i /usr/lib/vdpau/libvdpau_trace.so.1.* > /dev/null 2>&1
+     chattr +i /usr/lib/vdpau/libvdpau_trace.so.1.0.0 > /dev/null 2>&1
+     chattr +i /usr/lib/primus/libGL.so.1 > /dev/null 2>&1
+     chattr +i /usr/lib/xorg/modules/libglamoregl.so > /dev/null 2>&1
+     chattr +i /usr/lib64/libGL.so.1.* > /dev/null 2>&1
+     chattr +i /usr/lib64/libGL.so.1.2.0 > /dev/null 2>&1
+     chattr +i /usr/lib64/libGL.so.1.2 > /dev/null 2>&1
+     chattr +i /usr/lib64/libEGL.so.1 > /dev/null 2>&1
+     chattr +i /usr/lib64/libEGL.so.1.0.0 > /dev/null 2>&1
+     chattr +i /usr/lib64/libGLESv2.so.2.* > /dev/null 2>&1
+     chattr +i /usr/lib64/libvdpau.so.1.* > /dev/null 2>&1
+     chattr +i /usr/lib64/libvdpau.so.1.0.0 > /dev/null 2>&1
+     chattr +i /usr/lib64/vdpau/libvdpau_trace.so.1.* > /dev/null 2>&1
+     chattr +i /usr/lib64/vdpau/libvdpau_trace.so.1.0.0 > /dev/null 2>&1
+     chattr +i /usr/lib64/primus/libGL.so.1 > /dev/null 2>&1
+     chattr +i /usr/lib64/xorg/modules/extensions/libglx.so > /dev/null 2>&1
+     chattr +i /usr/lib/xorg/modules/extensions/libglx.so > /dev/null 2>&1
+     chattr +i /usr/lib64/xorg/modules/libglamoregl.so > /dev/null 2>&1
+
+     sh /etc/sysconfig/nvidia/NVIDIA-Linux-*.run --accept-license --silent --no-x-check --uninstall
+
+     chattr -i /usr/lib/libGL.so.1.* > /dev/null 2>&1
+     chattr -i /usr/lib/libGL.so.1.2.0  > /dev/null 2>&1
+     chattr -i /usr/lib/libGL.so.1.2 > /dev/null 2>&1
+     chattr -i /usr/lib/libEGL.so.1 > /dev/null 2>&1
+     chattr -i /usr/lib/libEGL.so.1.0.0 > /dev/null 2>&1
+     chattr -i /usr/lib/libGLESv2.so.2.* > /dev/null 2>&1
+     chattr -i /usr/lib/libvdpau.so.1.* > /dev/null 2>&1
+     chattr -i /usr/lib/libvdpau.so.1.0.0 > /dev/null 2>&1
+     chattr -i /usr/lib/vdpau/libvdpau_trace.so.1.* > /dev/null 2>&1
+     chattr -i /usr/lib/vdpau/libvdpau_trace.so.1.0.0 > /dev/null 2>&1
+     chattr -i /usr/lib/primus/libGL.so.1 > /dev/null 2>&1
+     chattr -i /usr/lib/xorg/modules/libglamoregl.so > /dev/null 2>&1
+     chattr -i /usr/lib64/libGL.so.1.* > /dev/null 2>&1
+     chattr -i /usr/lib64/libGL.so.1.2.0 > /dev/null 2>&1
+     chattr -i /usr/lib64/libGL.so.1.2 > /dev/null 2>&1
+     chattr -i /usr/lib64/libEGL.so.1 > /dev/null 2>&1
+     chattr -i /usr/lib64/libEGL.so.1.0.0 > /dev/null 2>&1
+     chattr -i /usr/lib64/libGLESv2.so.2.* > /dev/null 2>&1
+     chattr -i /usr/lib64/libvdpau.so.1.* > /dev/null 2>&1
+     chattr -i /usr/lib64/libvdpau.so.1.0.0 > /dev/null 2>&1
+     chattr -i /usr/lib64/vdpau/libvdpau_trace.so.1.* > /dev/null 2>&1
+     chattr -i /usr/lib64/vdpau/libvdpau_trace.so.1.0.0 > /dev/null 2>&1
+     chattr -i /usr/lib64/primus/libGL.so.1 > /dev/null 2>&1
+     chattr -i /usr/lib64/xorg/modules/extensions/libglx.so > /dev/null 2>&1
+     chattr -i /usr/lib/xorg/modules/extensions/libglx.so > /dev/null 2>&1
+     chattr -i /usr/lib64/xorg/modules/libglamoregl.so > /dev/null 2>&1
+
+     exit 0
+
+fi
+
+# These are created by our RPM package in the %install section of the spec 
+# file but lets also create them when needed here in case anyone wants to 
+# use this shell script as a stand alone solution...
+
+if [ ! -d /etc/sysconfig/nvidia/ ]; then
+     mkdir -p /etc/sysconfig/nvidia
+fi
+
+
+
+if [ ! -d /usr/lib/nvidia-bumblebee ];then
+     mkdir -p /usr/lib/nvidia-bumblebee
+fi
+
+if [ "$systemarch" == "x86_64" ]; then
+
+
+               # on 64 bit system.
+
+     if [ ! -d /usr/lib64/nvidia-bumblebee ];then
+          mkdir -p /usr/lib64/nvidia-bumblebee
+     fi
+
+     if [ ! -d /usr/lib64/nvidia-bumblebee/xorg/modules/extensions ];then
+          mkdir -p /usr/lib64/nvidia-bumblebee/xorg/modules/extensions
+     fi
+
+else
+
+     if [ ! -d /usr/lib/nvidia-bumblebee/xorg/modules/extensions ];then
+          mkdir -p /usr/lib/nvidia-bumblebee/xorg/modules/extensions
+     fi
+
+fi
+
+
+
+#if [ ! -e /lib/modules/`uname -r`/kernel/drivers/misc/.nvidia_installed ] || [ "$forcenvidia" ]; then
+
+if [ ! -e "/etc/sysconfig/nvidia/`uname -r`-installed" ]  || [ "$forcenvidia" ]; then
+        
+     if [ -e /etc/sysconfig/nvidia/intel-libs.tar.gz ];then
+          rm -rf /etc/sysconfig/nvidia/intel-libs.tar.gz
+     fi
+
+     if [ "$systemarch" == "i386" ]; then
+     
+
+          # We must be running on a 32 bit system.
+
+          # Preserve as many system libraries as we can from the NVidia 
+          # installer doing the wrong thing for bumblebee...
+
+          tar -czf /etc/sysconfig/nvidia/intel-libs.tar.gz \
+          /usr/lib/libGL.so \
+          /usr/lib/libGL.so.1 \
+          /usr/lib/libGL.so.1.* \
+          /usr/lib/libEGL.so.1 \
+          /usr/lib/libEGL.so.1.* \
+          /usr/lib/libGLESv2.so.2 \
+          /usr/lib/libGLESv2.so.2.* \
+          /usr/lib/libvdpau.so.1 \
+          /usr/lib/libvdpau.so.1.* \
+          /usr/lib/vdpau/libvdpau_trace.so \
+          /usr/lib/vdpau/libvdpau_trace.so.1 \
+          /usr/lib/vdpau/libvdpau_trace.so.1.* \
+          /usr/lib/primus/libGL.so.1 \
+          /usr/lib/fakelib/libGL.so \
+          /usr/lib/xorg/modules/libglamoregl.so \
+          /usr/lib/xorg/modules/extensions/libglx.so > /dev/null 2>&1
+          
+          
+          bumblebee_lastarg=""
+          
+
+     else
+          # 64 bit it is then. Make sure we handle multilib just in case! ;)
+
+          tar -czf /etc/sysconfig/nvidia/intel-libs.tar.gz \
+          /usr/lib/libGL.so \
+          /usr/lib/libGL.so.1 \
+          /usr/lib/libGL.so.1.* \
+          /usr/lib/libEGL.so.1 \
+          /usr/lib/libEGL.so.1.* \
+          /usr/lib/libGLESv2.so.2 \
+          /usr/lib/libGLESv2.so.2.* \
+          /usr/lib/libvdpau.so.1 \
+          /usr/lib/libvdpau.so.1.* \
+          /usr/lib/vdpau/libvdpau_trace.so \
+          /usr/lib/vdpau/libvdpau_trace.so.1 \
+          /usr/lib/vdpau/libvdpau_trace.so.1.* \
+          /usr/lib/primus/libGL.so.1 \
+          /usr/lib/fakelib/libGL.so \
+          /usr/lib64/libGL.so \
+          /usr/lib64/libGL.so.1 \
+          /usr/lib64/libGL.so.1.* \
+          /usr/lib64/libEGL.so.1 \
+          /usr/lib64/libEGL.so.1.* \
+          /usr/lib64/libGLESv2.so.2 \
+          /usr/lib64/libGLESv2.so.2.* \
+          /usr/lib64/libvdpau.so.1 \
+          /usr/lib64/libvdpau.so.1.* \
+          /usr/lib64/vdpau/libvdpau_trace.so \
+          /usr/lib64/vdpau/libvdpau_trace.so.1 \
+          /usr/lib64/vdpau/libvdpau_trace.so.1.* \
+          /usr/lib64/primus/libGL.so.1 \
+          /usr/lib64/fakelib/libGL.so \
+          /usr/lib64/xorg/modules/libglamoregl.so \
+          /usr/lib64/xorg/modules/extensions/libglx.so > /dev/null 2>&1
+
+          # If there is no 32 bit VirtualGL package don't try to add 32 compatibility libs.
+          # See https://www.reddit.com/r/Fedora/comments/3vthjr/problem_with_bumblebee_on_fedora_23/
+          virtualgl32test=`rpm -q VirtualGL.i686 | grep -v "is not installed"`
+
+
+          if [ "$virtualgl32test" == "" ] ; then
+              bumblebee_lastarg=""
+          else
+              bumblebee_lastarg="--compat32-libdir=lib/nvidia-bumblebee --compat32-prefix=/usr"
+          fi
+
+
+          
+     fi
+
+     # They added libglvnd in fedora 25/26 but we need to not use that 
+     # due to primus issues. Lets see if the package was installed by mesa.
+     libglvndtest=`rpm -q libglvnd | grep -v "is not installed"`
+     if [ "$libglvndtest" == "" ] ; then
+         bumblebee_libglvnd=""
+     else
+         bumblebee_libglvnd="--no-libglx-indirect --no-install-libglvnd --no-glvnd-glx-client --no-glvnd-egl-client"
+     fi
+
+
+
+     echo -n "Building NVIDIA video drivers: "
+     
+     chattr +i /usr/lib/libGL.so.1.* > /dev/null 2>&1
+     chattr +i /usr/lib/libGL.so.1.2.0  > /dev/null 2>&1
+     chattr +i /usr/lib/libGL.so.1.2 > /dev/null 2>&1
+     chattr +i /usr/lib/libEGL.so.1 > /dev/null 2>&1
+     chattr +i /usr/lib/libEGL.so.1.0.0 > /dev/null 2>&1
+     chattr +i /usr/lib/libEGL.so.1.0.0 > /dev/null 2>&1
+     chattr +i /usr/lib/libGLESv2.so.2.* > /dev/null 2>&1
+     chattr +i /usr/lib/libvdpau.so.1.* > /dev/null 2>&1
+     chattr +i /usr/lib/libvdpau.so.1.0.0 > /dev/null 2>&1
+     chattr +i /usr/lib/vdpau/libvdpau_trace.so.1.* > /dev/null 2>&1
+     chattr +i /usr/lib/vdpau/libvdpau_trace.so.1.0.0 > /dev/null 2>&1
+     chattr +i /usr/lib/primus/libGL.so.1 > /dev/null 2>&1
+     chattr +i /usr/lib64/libGL.so.1.* > /dev/null 2>&1
+     chattr +i /usr/lib64/libGL.so.1.2.0 > /dev/null 2>&1
+     chattr +i /usr/lib64/libGL.so.1.2 > /dev/null 2>&1
+     chattr +i /usr/lib64/libEGL.so.1 > /dev/null 2>&1
+     chattr +i /usr/lib64/libEGL.so.1.0.0 > /dev/null 2>&1
+     chattr +i /usr/lib64/libGLESv2.so.2.* > /dev/null 2>&1
+     chattr +i /usr/lib64/libvdpau.so.1.* > /dev/null 2>&1
+     chattr +i /usr/lib64/libvdpau.so.1.0.0 > /dev/null 2>&1
+     chattr +i /usr/lib64/vdpau/libvdpau_trace.so.1.* > /dev/null 2>&1
+     chattr +i /usr/lib64/vdpau/libvdpau_trace.so.1.0.0 > /dev/null 2>&1
+     chattr +i /usr/lib64/primus/libGL.so.1 > /dev/null 2>&1
+     chattr +i /usr/lib64/xorg/modules/extensions/libglx.so > /dev/null 2>&1
+     chattr +i /usr/lib/xorg/modules/extensions/libglx.so > /dev/null 2>&1
+     chattr +i /usr/lib/xorg/modules/libglamoregl.so  > /dev/null 2>&1
+     chattr +i /usr/lib64/xorg/modules/libglamoregl.so > /dev/null 2>&1
+
+     /sbin/rmmod nouveau > /dev/null 2>&1
+     
+     pushd /tmp > /dev/null 2>&1
+     sh /etc/sysconfig/nvidia/NVIDIA-Linux-*.run --extract-only 
+     cd NVIDIA-Linux-*
+     # Add patched installer. (If there)  See https://github.com/NVIDIA/nvidia-installer/issues/1
+     nvidia_installer_special_args=""
+     if [ -x /etc/sysconfig/nvidia/nvidia-installer ] ; then
+     cp /etc/sysconfig/nvidia/nvidia-installer ./nvidia-installer
+     nvidia_installer_special_args="--no-symlink-check --no-runtime-check"
+     fi
+     # Check to see if there are any patches to apply....
+     patchcount=`ls /etc/sysconfig/nvidia/*.patch  2>/dev/null | wc -l | cut -c1`
+     if test $patchcount -gt 0
+     then
+     for PATCH in /etc/sysconfig/nvidia/*.patch ; do
+     patch -p1 < $PATCH
+     done
+     fi
+
+     if [ -f /etc/bumblebee/bumblebee-nvidia-sign.conf ] ; then
+
+     source /etc/bumblebee/bumblebee-nvidia-sign.conf
+
+     else
+
+          Publickey=""
+          Privatekey=""
+
+     fi
+
+
+     if [ "$Publickey" == "" ] || [ "$Privatekey" == "" ] ; then
+
+          sign_driver=""
+
+     else
+
+          sign_driver="--module-signing-secret-key=$Privatekey --module-signing-public-key=$Publickey"
+
+     fi
+     # Probably not safe but for when gcc and kernel are out of step.
+     # See https://github.com/Bumblebee-Project/Bumblebee/issues/712
+     export IGNORE_CC_MISMATCH="1"
+
+     if [  -n "$forcedebug" ]; then
+          ./nvidia-installer --accept-license --silent --no-x-check --no-nouveau-check --no-recursion --opengl-libdir=$bumblebee_libdir/nvidia-bumblebee --opengl-prefix=/usr --x-library-path=$bumblebee_libdir/nvidia-bumblebee --x-prefix=/usr --x-module-path=/usr/$bumblebee_libdir/nvidia-bumblebee/xorg/modules $bumblebee_libglvnd $sign_driver $bumblebee_lastarg $nvidia_installer_special_args
+          vidcompile=$?
+     else
+          ./nvidia-installer --accept-license --silent --no-x-check --no-nouveau-check --no-recursion --opengl-libdir=$bumblebee_libdir/nvidia-bumblebee --opengl-prefix=/usr --x-library-path=$bumblebee_libdir/nvidia-bumblebee --x-prefix=/usr --x-module-path=/usr/$bumblebee_libdir/nvidia-bumblebee/xorg/modules $bumblebee_libglvnd $sign_driver $bumblebee_lastarg $nvidia_installer_special_args > /dev/null 2>&1
+          vidcompile=$?
+     fi
+     cd ..
+     rm -rf /tmp/NVIDIA-Linux-*
+     popd > /dev/null 2>&1
+
+     if [ $vidcompile = "0" ]; then
+          echo -en "\t\t\t\t   [  "
+          echo -en "\\033[0;32m"
+          echo -en "OK"
+          echo -en "\\033[0;39m"
+          echo -e "  ]"
+
+
+          tar -xvzf /etc/sysconfig/nvidia/intel-libs.tar.gz -C /  > /dev/null 2>&1
+          \rm -rf /usr/$bumblebee_libdir/nvidia-bumblebee/xorg/modules/libwfb.so
+          ln -s /usr/$bumblebee_libdir/xorg/modules/libwfb.so /usr/$bumblebee_libdir/nvidia-bumblebee/xorg/modules/libwfb.so
+
+          
+          chattr -i /usr/lib/libGL.so.1.* > /dev/null 2>&1
+          chattr -i /usr/lib/libGL.so.1.2.0  > /dev/null 2>&1
+          chattr -i /usr/lib/libGL.so.1.2 > /dev/null 2>&1
+          chattr -i /usr/lib/libEGL.so.1 > /dev/null 2>&1
+          chattr -i /usr/lib/libEGL.so.1.0.0 > /dev/null 2>&1
+          chattr -i /usr/lib/libGLESv2.so.2.* > /dev/null 2>&1
+          chattr -i /usr/lib/libvdpau.so.1.* > /dev/null 2>&1
+          chattr -i /usr/lib/libvdpau.so.1.0.0 > /dev/null 2>&1
+          chattr -i /usr/lib/vdpau/libvdpau_trace.so.1.* > /dev/null 2>&1
+          chattr -i /usr/lib/vdpau/libvdpau_trace.so.1.0.0 > /dev/null 2>&1
+          chattr -i /usr/lib/primus/libGL.so.1 > /dev/null 2>&1
+          chattr -i /usr/lib64/libGL.so.1.* > /dev/null 2>&1
+          chattr -i /usr/lib64/libGL.so.1.2.0 > /dev/null 2>&1
+          chattr -i /usr/lib64/libGL.so.1.2 > /dev/null 2>&1
+          chattr -i /usr/lib64/libEGL.so.1 > /dev/null 2>&1
+          chattr -i /usr/lib64/libEGL.so.1.0.0 > /dev/null 2>&1
+          chattr -i /usr/lib64/libGLESv2.so.2.* > /dev/null 2>&1
+          chattr -i /usr/lib64/libvdpau.so.1.* > /dev/null 2>&1
+          chattr -i /usr/lib64/libvdpau.so.1.0.0 > /dev/null 2>&1
+          chattr -i /usr/lib64/vdpau/libvdpau_trace.so.1.* > /dev/null 2>&1
+          chattr -i /usr/lib64/vdpau/libvdpau_trace.so.1.0.0 > /dev/null 2>&1
+          chattr -i /usr/lib64/primus/libGL.so.1 > /dev/null 2>&1
+          chattr -i /usr/lib64/xorg/modules/extensions/libglx.so > /dev/null 2>&1
+          chattr -i /usr/lib/xorg/modules/extensions/libglx.so > /dev/null 2>&1
+          chattr -i /usr/lib/xorg/modules/libglamoregl.so > /dev/null 2>&1 
+          chattr -i /usr/lib64/xorg/modules/libglamoregl.so > /dev/null 2>&1
+
+
+
+          mesalibglpkgtest=`rpm -qi mesa-libGL.i686 | grep "not installed"`
+
+          if [ "$mesalibglpkgtest" != "" ] ; then
+
+               # Package is missing from this run...
+
+               \rm -rf /lib/libGL.so.1 > /dev/null 2>&1
+               # Next line needed on RHEL 6.
+               \rm -rf /usr/lib/libGL.so.1 > /dev/null 2>&1
+
+
+          fi
+
+
+
+
+
+          # Are we running systemd? upstart is taken care of already...
+          if [ -x /bin/systemctl ]; then
+               /bin/systemctl restart bumblebeed.service
+          fi
+
+          # Remove compile flag if it exists.
+          if [ -e /etc/sysconfig/nvidia/compile-nvidia-driver ]; then
+              \rm -rf /etc/sysconfig/nvidia/compile-nvidia-driver
+          fi
+
+          # Delete the other flag (wherever it is) in case a user needs to 
+          # boot into a older kernel so they need not manually remove it.
+          \rm -rf /lib/modules/*/kernel/drivers/misc/.nvidia_installed > /dev/null 2>&1
+          \rm -rf "/etc/sysconfig/nvidia/*-installed"
+
+          # The next line prevents us from running through this loop again 
+          # until there is a kernel upgrade from Red Hat. --force or -f 
+          # overides this behavior and ignores the flag.
+          #touch /lib/modules/`uname -r`/kernel/drivers/misc/.nvidia_installed
+          touch "/etc/sysconfig/nvidia/`uname -r`-installed"
+
+          # Fix the desktop launcher in the menu system.
+
+          sed -i 's@/usr/bin/nvidia-settings@optirun -b none nvidia-settings -c :8@' /usr/share/applications/nvidia-settings.desktop
+
+     else
+
+          echo -en "\t\t\t\t   ["
+          echo -en "\\033[0;31m"
+          echo -en "FAILED"
+          echo -en "\\033[0;39m"
+          echo -e "]"
+		  
+
+
+          chattr -i /usr/lib/libGL.so.1.* > /dev/null 2>&1
+          chattr -i /usr/lib/libGL.so.1.2.0  > /dev/null 2>&1
+          chattr -i /usr/lib/libGL.so.1.2 > /dev/null 2>&1
+          chattr -i /usr/lib/libEGL.so.1 > /dev/null 2>&1
+          chattr -i /usr/lib/libEGL.so.1.0.0 > /dev/null 2>&1
+          chattr -i /usr/lib/libGLESv2.so.2.* > /dev/null 2>&1
+          chattr -i /usr/lib/libvdpau.so.1.* > /dev/null 2>&1
+          chattr -i /usr/lib/libvdpau.so.1.0.0 > /dev/null 2>&1
+          chattr -i /usr/lib/vdpau/libvdpau_trace.so.1.* > /dev/null 2>&1
+          chattr -i /usr/lib/vdpau/libvdpau_trace.so.1.0.0 > /dev/null 2>&1
+          chattr -i /usr/lib/primus/libGL.so.1 > /dev/null 2>&1
+          chattr -i /usr/lib64/libGL.so.1.* > /dev/null 2>&1
+          chattr -i /usr/lib64/libGL.so.1.2.0 > /dev/null 2>&1
+          chattr -i /usr/lib64/libGL.so.1.2 > /dev/null 2>&1
+          chattr -i /usr/lib64/libEGL.so.1 > /dev/null 2>&1
+          chattr -i /usr/lib64/libEGL.so.1.0.0 > /dev/null 2>&1
+          chattr -i /usr/lib64/libGLESv2.so.2.* > /dev/null 2>&1
+          chattr -i /usr/lib64/libvdpau.so.1.* > /dev/null 2>&1
+          chattr -i /usr/lib64/libvdpau.so.1.0.0 > /dev/null 2>&1
+          chattr -i /usr/lib64/vdpau/libvdpau_trace.so.1.* > /dev/null 2>&1
+          chattr -i /usr/lib64/vdpau/libvdpau_trace.so.1.0.0 > /dev/null 2>&1
+          chattr -i /usr/lib64/primus/libGL.so.1 > /dev/null 2>&1
+          chattr -i /usr/lib64/xorg/modules/extensions/libglx.so > /dev/null 2>&1
+          chattr -i /usr/lib/xorg/modules/extensions/libglx.so > /dev/null 2>&1 
+          chattr -i /usr/lib/xorg/modules/libglamoregl.so > /dev/null 2>&1
+          chattr -i /usr/lib64/xorg/modules/libglamoregl.so > /dev/null 2>&1
+
+          exit 1
+
+     fi # vid compile
+
+
+fi # flag from modules
