@@ -1,4 +1,4 @@
-module bumblebee-nvidia 7.8.0;
+module bumblebee-nvidia 7.9.0;
 
 require {
 	type dmesg_t;
@@ -35,6 +35,7 @@ require {
     type modules_object_t;
 	type admin_home_t;
 	type accountsd_t;
+    type systemd_modules_load_t;
 	class dir { add_name open ioctl read lock getattr create search setattr write remove_name link unlink };
 	class file { setattr append ioctl lock open getattr create read write rename unlink link };
 	class process { execmem getpgid setpgid siginh noatsecure rlimitinh };
@@ -118,4 +119,7 @@ allow insmod_t modules_object_t:system module_load;
 #============= unconfined_t ==============
 allow unconfined_t user_tmp_t:system module_load;
 allow unconfined_t modules_object_t:system module_load;
+#============= systemd_modules_load_t ==============
+allow systemd_modules_load_t modules_object_t:system module_load;
+
 
