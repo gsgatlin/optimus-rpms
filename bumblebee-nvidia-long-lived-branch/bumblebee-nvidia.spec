@@ -352,7 +352,7 @@ fi
 #%endif
 
 %changelog
- Wed Mar 1 2017 Gary Gatling <gsgatlin@ncsu.edu> - 375.39-3
+* Wed Mar 1 2017 Gary Gatling <gsgatlin@ncsu.edu> - 375.39-3
 - more changes to selinux module.
 
 * Mon Feb 27 2017 Gary Gatling <gsgatlin@ncsu.edu> - 375.39-2
