@@ -3,7 +3,7 @@
 Summary: NVIDIA's proprietary display driver installed for Bumblebee
 Name: bumblebee-nvidia
 Version: %{bumblebee_nvidia_ver}
-Release: 3%{?dist}
+Release: 4%{?dist}
 License: Redistributable, no modification permitted
 Group: System Environment/Base
 #Source0: ftp://download.nvidia.com/XFree86/Linux-x86/%{bumblebee_nvidia_ver}/NVIDIA-Linux-x86-%{bumblebee_nvidia_ver}.run
@@ -305,6 +305,9 @@ fi
 
 
 %changelog
+* Wed Mar 1 2017 Gary Gatling <gsgatlin@ncsu.edu> - 3.0-4
+- more changes to selinux module.
+
 * Mon Feb 27 2017 Gary Gatling <gsgatlin@ncsu.edu> - 3.0-3
 - update flag location to within /etc/sysconfig/nvidia/
 - update selinux policy module to deal with selinux-policy-3.13.1-225.10
