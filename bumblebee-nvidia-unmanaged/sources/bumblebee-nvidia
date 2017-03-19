@@ -18,7 +18,7 @@
 # This script is intended for Red Hat type systems. It was tested on several
 # different fedoras and RHEL 6/7.
 #
-# Gary Scott Gatling <gsgatlin@ncsu.edu> 2/27/2017
+# Gary Scott Gatling <gsgatlin@ncsu.edu> 3/19/2017
 # Gilboa Davara <gilboad@gmail.com> 7/28/2013 - Added support for kernels newer 
 # then 3.10 and a mechanism for adding in various patches to the blob.
 # Fahad Alduraibi 10/21/2015 add idea for 
@@ -224,7 +224,7 @@ if [ "$1" = "-u" ] || [ "$1" = "--uninstall" ] || [ "$2" = "-u" ] || [ "$2" = "-
           echo "--uninstall driver selected."
      fi
      \rm -rf /lib/modules/*/kernel/drivers/misc/.nvidia_installed > /dev/null 2>&1
-     \rm -rf "/etc/sysconfig/nvidia/*-installed" > /dev/null 2>&1
+     \rm -rf /etc/sysconfig/nvidia/*-installed > /dev/null 2>&1
 
      chattr +i /usr/lib/libGL.so.1.* > /dev/null 2>&1
      chattr +i /usr/lib/libGL.so.1.2.0  > /dev/null 2>&1
@@ -580,7 +580,7 @@ if [ ! -e "/etc/sysconfig/nvidia/`uname -r`-installed" ]  || [ "$forcenvidia" ];
           # Delete the other flag (wherever it is) in case a user needs to 
           # boot into a older kernel so they need not manually remove it.
           \rm -rf /lib/modules/*/kernel/drivers/misc/.nvidia_installed > /dev/null 2>&1
-          \rm -rf "/etc/sysconfig/nvidia/*-installed"
+          \rm -rf /etc/sysconfig/nvidia/*-installed
 
           # The next line prevents us from running through this loop again 
           # until there is a kernel upgrade from Red Hat. --force or -f 

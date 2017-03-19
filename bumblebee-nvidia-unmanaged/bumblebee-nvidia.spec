@@ -305,8 +305,9 @@ fi
 
 
 %changelog
-* Wed Mar 1 2017 Gary Gatling <gsgatlin@ncsu.edu> - 3.0-4
+* Sun Mar 19 2017 Gary Gatling <gsgatlin@ncsu.edu> - 3.0-4
 - more changes to selinux module.
+- update bumblebee-nvidia to fix flag deletions.
 
 * Mon Feb 27 2017 Gary Gatling <gsgatlin@ncsu.edu> - 3.0-3
 - update flag location to within /etc/sysconfig/nvidia/
