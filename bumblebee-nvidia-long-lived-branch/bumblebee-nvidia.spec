@@ -1,10 +1,10 @@
-%define bumblebee_nvidia_ver 375.39
+%define bumblebee_nvidia_ver 375.66
 %global debug_package %{nil}
 
 Summary: NVIDIA's proprietary display driver installed for Bumblebee
 Name: bumblebee-nvidia
 Version: %{bumblebee_nvidia_ver}
-Release: 3%{?dist}
+Release: 1%{?dist}
 License: Redistributable, no modification permitted
 Group: System Environment/Base
 Source0: ftp://download.nvidia.com/XFree86/Linux-x86/%{bumblebee_nvidia_ver}/NVIDIA-Linux-x86-%{bumblebee_nvidia_ver}.run
@@ -17,7 +17,7 @@ Source6: bumblebee-nvidia.svinit
 Source7: bumblebee-nvidia.conf-32
 Source8: bumblebee-nvidia.conf-64
 Source9: bumblebee-nvidia-sign.conf
-Source10: kernel_4.10.patch
+#Source10: kernel_4.10.patch
 # Nvidia installer 361.28 https://github.com/NVIDIA/nvidia-installer/commit/1e378a81ceeb06c5899f9c7bfc8dc2f46c52a446
 # Nvidia installer 361.45.11 https://github.com/NVIDIA/nvidia-installer/commit/bdbd855f007f8a1bd36bbafa299a4dff6fd3b9f8
 # Nvidia installer 367.27 https://github.com/NVIDIA/nvidia-installer/commit/349a24fc329abe3ee3d471588b896b9c6b60303a
@@ -113,9 +113,9 @@ install -m 644 $RPM_SOURCE_DIR/bumblebee-nvidia $RPM_BUILD_DIR/bumblebee-nvidia
 install -m 644 $RPM_SOURCE_DIR/bumblebee-nvidia.te $RPM_BUILD_DIR/bumblebee-nvidia.te
 %endif
 install -m 644 $RPM_SOURCE_DIR/blacklist-nvidia.conf $RPM_BUILD_DIR/blacklist-nvidia.conf
-%if 0%{?fedora:1}
-install -m 644 %{SOURCE10}  $RPM_BUILD_DIR/kernel_4.10.patch
-%endif
+#%if 0%{?fedora:1}
+#install -m 644 %{SOURCE10}  $RPM_BUILD_DIR/kernel_4.10.patch
+#%endif
 %if 0%{?fedora} >=15 || 0%{?rhel} >= 7
 install -m 644 $RPM_SOURCE_DIR/bumblebee-nvidia.service $RPM_BUILD_DIR/bumblebee-nvidia.service
 %endif
@@ -159,9 +159,9 @@ install -pm 644 $RPM_BUILD_DIR/blacklist-nvidia.conf $RPM_BUILD_ROOT/etc/modprob
 #install -pm 644 $RPM_BUILD_DIR/nvidia-unload.conf $RPM_BUILD_ROOT/etc/modprobe.d/nvidia-unload.conf
 
 # Example of how to use the patch function for the blob when it becomes necessary. (Which it will)
-%if 0%{?fedora:1}
-install -pm 644 $RPM_BUILD_DIR/kernel_4.10.patch $RPM_BUILD_ROOT/etc/sysconfig/nvidia/kernel_4.10.patch
-%endif
+#%if 0%{?fedora:1}
+#install -pm 644 $RPM_BUILD_DIR/kernel_4.10.patch $RPM_BUILD_ROOT/etc/sysconfig/nvidia/kernel_4.10.patch
+#%endif
 
 # systemd is a replacement for SysVinit/upstart beginning with fedora 15.
 
@@ -353,6 +353,9 @@ fi
 %endif
 
 %changelog
+* Wed May 17 2017 Gary Gatling <gsgatlin@ncsu.edu> - 375.66-1
+- Update to latest long lived branch version. 
+
 * Sun Mar 19 2017 Gary Gatling <gsgatlin@ncsu.edu> - 375.39-3
 - more changes to selinux module.
 - add patch for 4.10 kernel in fedora distro.
