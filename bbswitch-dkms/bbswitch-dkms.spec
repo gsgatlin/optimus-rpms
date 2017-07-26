@@ -6,10 +6,12 @@ Summary:        Linux kernel module for Bumblebee
 Name:           %{module}-dkms
 Version:        0.8.0
 URL:            https://github.com/Bumblebee-Project/bbswitch/
-Release:        2%{?dist}
+Release:        3%{?dist}
 License:        GPLv3
 Group:          System Environment/Base
-Source0:        bbswitch-0.8.tar.gz
+Source0:        %{module}-0.8.tar.gz
+Source1:        %{module}.conf
+Patch0:         %{module}-412.patch
 BuildRoot:      %{_tmppath}/%{name}-root
 %ifarch i686
 %if 0%{?fedora} >=15
@@ -31,14 +33,16 @@ See: https://github.com/Bumblebee-Project/bbswitch/
 For further information.
 
 For now, if you require nvidia module support with bumblebee you must 
-install bbswitch-dkms. In addition, even with nouveau, bbswitch will work 
-after a suspend whereas vga_switcharoo in the kernel might not. See:
-https://github.com/Bumblebee-Project/Bumblebee/wiki/Comparison-of-PM-methods
-for further information.
+install bbswitch-dkms.
 
 %prep
 
-%setup -q -n bbswitch-0.8
+%setup -q -n %{module}-0.8
+
+
+%if 0%{?fedora:1} 
+%patch0 -p1 -b .4.12fix
+%endif
 
 %build
 
@@ -57,15 +61,30 @@ install -pm 644 COPYING %{buildroot}%{_docdir}/%{name}/
 install -pm 644 NEWS %{buildroot}%{_docdir}/%{name}/
 install -pm 644 README.md %{buildroot}%{_docdir}/%{name}/
 
+%if 0%{?fedora:1} || 0%{?rhel} >= 7
+mkdir -p $RPM_BUILD_ROOT/etc/modules-load.d/
+install -pm 755 %{SOURCE1} $RPM_BUILD_ROOT/etc/modules-load.d/
+%endif
+
+%pre
+dkms remove -m %{module} -v %{version} --rpm_safe_upgrade --all &>/dev/null
+exit 0
+
 %post
 /sbin/rmmod bbswitch >/dev/null 2>&1 || :
 /usr/sbin/dkms add -m %{module} -v %{version} --rpm_safe_upgrade >/dev/null 2>&1 || :
 /usr/sbin/dkms build -m  %{module} -v %{version} --rpm_safe_upgrade >/dev/null 2>&1 || :
 /usr/sbin/dkms install -m %{module} -v %{version} --rpm_safe_upgrade >/dev/null 2>&1 || :
+exit 0
 
 %preun
 # Remove all versions from DKMS registry
 dkms remove -m %{module} -v %{version} --rpm_safe_upgrade --all >/dev/null 2>&1 || :
+exit 0
+
+%postun
+
+
 
 %files
 
@@ -74,8 +93,15 @@ dkms remove -m %{module} -v %{version} --rpm_safe_upgrade --all >/dev/null 2>&1 
 %doc %{_docdir}/%{name}/NEWS
 %doc %{_docdir}/%{name}/README.md
 %{_prefix}/src/%{module}-%{version}
+%{_sysconfdir}/modules-load.d/bbswitch.conf
 
 %changelog
+* Wed Jul 26 2017 Gary Gatling <gsgatlin@ncsu.edu> - 0.8.0-3
+- add kernel 4.12 patch.
+- add pre section to fix upgrade bug.
+- add /etc/modules-load.d/bbswitch.conf to try to make sure 
+  module always gets loaded at boot.
+
 * Mon Feb 17 2014 Gary Gatling <gsgatlin@ncsu.edu> - 0.8.0-2
 - Completely re-work package. Now called bbswitch-dkms.
 - Ideas taken from the Mandriva DKMS OpenAFS package

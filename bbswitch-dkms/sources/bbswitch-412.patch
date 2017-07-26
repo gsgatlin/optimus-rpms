@@ -1,0 +1,12 @@
+diff -up bbswitch-0.8/bbswitch.c.4.12fix bbswitch-0.8/bbswitch.c
+--- bbswitch-0.8/bbswitch.c.4.12fix	2017-07-25 19:05:22.564978397 -0400
++++ bbswitch-0.8/bbswitch.c	2017-07-25 19:05:45.583038628 -0400
+@@ -31,7 +31,7 @@
+ #include <linux/pci.h>
+ #include <linux/acpi.h>
+ #include <linux/module.h>
+-#include <asm/uaccess.h>
++#include <linux/uaccess.h>
+ #include <linux/suspend.h>
+ #include <linux/seq_file.h>
+ #include <linux/pm_runtime.h>
