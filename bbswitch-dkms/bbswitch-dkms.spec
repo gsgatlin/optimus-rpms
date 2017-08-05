@@ -11,6 +11,7 @@ License:        GPLv3
 Group:          System Environment/Base
 Source0:        %{module}-0.8.tar.gz
 Source1:        %{module}.conf
+Source2:        %{module}.modules
 Patch0:         %{module}-412.patch
 BuildRoot:      %{_tmppath}/%{name}-root
 %ifarch i686
@@ -66,6 +67,11 @@ mkdir -p $RPM_BUILD_ROOT/etc/modules-load.d/
 install -pm 755 %{SOURCE1} $RPM_BUILD_ROOT/etc/modules-load.d/
 %endif
 
+%if 0%{?rhel} == 6
+mkdir -p $RPM_BUILD_ROOT/etc/sysconfig/modules/
+install -pm 755 %{SOURCE2} $RPM_BUILD_ROOT/%{_sysconfdir}/sysconfig/modules/bbswitch.modules
+%endif
+
 %pre
 dkms remove -m %{module} -v %{version} --rpm_safe_upgrade --all &>/dev/null
 exit 0
@@ -93,14 +99,21 @@ exit 0
 %doc %{_docdir}/%{name}/NEWS
 %doc %{_docdir}/%{name}/README.md
 %{_prefix}/src/%{module}-%{version}
+%if 0%{?fedora:1} || 0%{?rhel} >= 7
 %{_sysconfdir}/modules-load.d/bbswitch.conf
+%endif
+%if 0%{?rhel} == 6
+%{_sysconfdir}/sysconfig/modules/bbswitch.modules
+%endif
 
 %changelog
-* Wed Jul 26 2017 Gary Gatling <gsgatlin@ncsu.edu> - 0.8.0-3
+* Fri Aug 4 2017 Gary Gatling <gsgatlin@ncsu.edu> - 0.8.0-3
 - add kernel 4.12 patch.
 - add pre section to fix upgrade bug.
 - add /etc/modules-load.d/bbswitch.conf to try to make sure 
   module always gets loaded at boot.
+- add /etc/sysconfig/modules/bbswitch.modules on RHEL 6
+  to try to make sure module always gets loaded at boot.
 
 * Mon Feb 17 2014 Gary Gatling <gsgatlin@ncsu.edu> - 0.8.0-2
 - Completely re-work package. Now called bbswitch-dkms.
