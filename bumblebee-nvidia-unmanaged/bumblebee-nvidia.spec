@@ -3,20 +3,21 @@
 Summary: NVIDIA's proprietary display driver installed for Bumblebee
 Name: bumblebee-nvidia
 Version: %{bumblebee_nvidia_ver}
-Release: 4%{?dist}
+Release: 5%{?dist}
 License: Redistributable, no modification permitted
 Group: System Environment/Base
 #Source0: ftp://download.nvidia.com/XFree86/Linux-x86/%{bumblebee_nvidia_ver}/NVIDIA-Linux-x86-%{bumblebee_nvidia_ver}.run
 #Source1: ftp://download.nvidia.com/XFree86/Linux-x86_64/%{bumblebee_nvidia_ver}/NVIDIA-Linux-x86_64-%{bumblebee_nvidia_ver}.run
 Source2: bumblebee-nvidia
-Source3: bumblebee-nvidia.te
+#Source3: bumblebee-nvidia.te
+Source3: bumblebee-nvidia-fedora.te
 Source4: blacklist-nvidia.conf
 Source5: bumblebee-nvidia.service
 Source6: bumblebee-nvidia.svinit
 Source7: bumblebee-nvidia.conf-32
 Source8: bumblebee-nvidia.conf-64
 Source9: bumblebee-nvidia-sign.conf
-
+Source10: bumblebee-nvidia-RHEL7.te
 #Source9: 4.0.patch
 
 BuildArch: noarch
@@ -71,9 +72,15 @@ integrated (Intel) driver.
 #install -m 644 $RPM_SOURCE_DIR/NVIDIA-Linux-x86-%{bumblebee_nvidia_ver}.run $RPM_BUILD_DIR/NVIDIA-Linux-x86-%{bumblebee_nvidia_ver}.run
 #%endif
 install -m 644 $RPM_SOURCE_DIR/bumblebee-nvidia $RPM_BUILD_DIR/bumblebee-nvidia
-%if 0%{?fedora} >=15 || 0%{?rhel} >= 7
-install -m 644 $RPM_SOURCE_DIR/bumblebee-nvidia.te $RPM_BUILD_DIR/bumblebee-nvidia.te
+
+%if 0%{?fedora} >=15
+install -m 644 $RPM_SOURCE_DIR/bumblebee-nvidia-fedora.te $RPM_BUILD_DIR/bumblebee-nvidia.te
 %endif
+
+%if  0%{?rhel} >= 7
+install -m 644 $RPM_SOURCE_DIR/bumblebee-nvidia-RHEL7.te $RPM_BUILD_DIR/bumblebee-nvidia.te
+%endif
+
 install -m 644 $RPM_SOURCE_DIR/blacklist-nvidia.conf $RPM_BUILD_DIR/blacklist-nvidia.conf
 #%if 0%{?fedora} >=22
 #install -m 644 $RPM_SOURCE_DIR/4.0.patch  $RPM_BUILD_DIR/4.0.patch
@@ -305,6 +312,9 @@ fi
 
 
 %changelog
+* Thu Aug 3 2017 Gary Gatling <gsgatlin@ncsu.edu> - 3.0-5
+- Fix SELinux problems on RHEL 7. 
+
 * Sun Mar 19 2017 Gary Gatling <gsgatlin@ncsu.edu> - 3.0-4
 - more changes to selinux module.
 - update bumblebee-nvidia to fix flag deletions.

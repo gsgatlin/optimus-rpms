@@ -1,0 +1,18 @@
+
+module bumblebee-nvidia 1.0;
+
+require {
+    type insmod_t;
+	type bumblebee_t;
+    type proc_t;
+    type xserver_t;
+    class process { noatsecure rlimitinh siginh };  
+    class file { getattr ioctl open read write };
+}
+
+
+#============= bumblebee_t ==============
+allow bumblebee_t insmod_t:process { noatsecure rlimitinh siginh };
+allow bumblebee_t proc_t:file write;
+allow bumblebee_t xserver_t:process { noatsecure rlimitinh };
+

@@ -1,4 +1,4 @@
-%define bumblebee_nvidia_ver 375.66
+%define bumblebee_nvidia_ver 384.59
 %global debug_package %{nil}
 
 Summary: NVIDIA's proprietary display driver installed for Bumblebee
@@ -10,13 +10,14 @@ Group: System Environment/Base
 Source0: ftp://download.nvidia.com/XFree86/Linux-x86/%{bumblebee_nvidia_ver}/NVIDIA-Linux-x86-%{bumblebee_nvidia_ver}.run
 Source1: ftp://download.nvidia.com/XFree86/Linux-x86_64/%{bumblebee_nvidia_ver}/NVIDIA-Linux-x86_64-%{bumblebee_nvidia_ver}.run
 Source2: bumblebee-nvidia
-Source3: bumblebee-nvidia.te
+Source3: bumblebee-nvidia-fedora.te
 Source4: blacklist-nvidia.conf
 Source5: bumblebee-nvidia.service
 Source6: bumblebee-nvidia.svinit
 Source7: bumblebee-nvidia.conf-32
 Source8: bumblebee-nvidia.conf-64
 Source9: bumblebee-nvidia-sign.conf
+Source10: bumblebee-nvidia-RHEL7.te
 #Source10: kernel_4.10.patch
 # Nvidia installer 361.28 https://github.com/NVIDIA/nvidia-installer/commit/1e378a81ceeb06c5899f9c7bfc8dc2f46c52a446
 # Nvidia installer 361.45.11 https://github.com/NVIDIA/nvidia-installer/commit/bdbd855f007f8a1bd36bbafa299a4dff6fd3b9f8
@@ -109,9 +110,14 @@ install -m 644 $RPM_SOURCE_DIR/bumblebee-nvidia $RPM_BUILD_DIR/bumblebee-nvidia
 
 #install -m 644 $RPM_SOURCE_DIR/nvidia-unload.conf $RPM_BUILD_DIR/nvidia-unload.conf
 
-%if 0%{?fedora} >=15 || 0%{?rhel} >= 7
-install -m 644 $RPM_SOURCE_DIR/bumblebee-nvidia.te $RPM_BUILD_DIR/bumblebee-nvidia.te
+%if 0%{?fedora} >=15
+install -m 644 $RPM_SOURCE_DIR/bumblebee-nvidia-fedora.te $RPM_BUILD_DIR/bumblebee-nvidia.te
 %endif
+
+%if  0%{?rhel} >= 7
+install -m 644 $RPM_SOURCE_DIR/bumblebee-nvidia-RHEL7.te $RPM_BUILD_DIR/bumblebee-nvidia.te
+%endif
+
 install -m 644 $RPM_SOURCE_DIR/blacklist-nvidia.conf $RPM_BUILD_DIR/blacklist-nvidia.conf
 #%if 0%{?fedora:1}
 #install -m 644 %{SOURCE10}  $RPM_BUILD_DIR/kernel_4.10.patch
@@ -348,11 +354,15 @@ fi
 
 %config /etc/bumblebee/bumblebee-nvidia-sign.conf
 
-%if 0%{?fedora:1}
-/etc/sysconfig/nvidia/kernel_4.10.patch
-%endif
+#%if 0%{?fedora:1}
+#/etc/sysconfig/nvidia/kernel_4.10.patch
+#%endif
 
 %changelog
+* Thu Aug 3 2017 Gary Gatling <gsgatlin@ncsu.edu> - 384.59-1
+- Update to latest long lived branch version.
+- Fix SELinux problems on RHEL 7. 
+
 * Wed May 17 2017 Gary Gatling <gsgatlin@ncsu.edu> - 375.66-1
 - Update to latest long lived branch version. 
 
