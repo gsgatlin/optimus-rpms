@@ -1,8 +1,8 @@
-.PHONY: clean install all srpm fc24 fc25 fc26 fc27 el6 el7
+.PHONY: clean install all srpm fc25 fc26 fc27 fc28 el6 el7
 .SUFFIXES: .spec .rpm
-all: build *.src.rpm dist/*.fc24.noarch.rpm \
-dist/*.fc25.noarch.rpm dist/*.fc26.noarch.rpm \
-dist/*.fc27.noarch.rpm dist/*.el6.noarch.rpm \
+all: build *.src.rpm dist/*.fc25.noarch.rpm \
+dist/*.fc26.noarch.rpm dist/*.fc27.noarch.rpm \
+dist/*.fc28.noarch.rpm dist/*.el6.noarch.rpm \
 dist/*.el7.centos.noarch.rpm
 
 install:
@@ -32,12 +32,6 @@ srpm: *.src.rpm
 	
 newsrpm = $(shell \ls --color=never *.src.rpm)
 
-fc24: dist/*.fc24.noarch.rpm
-
-dist/*.fc24.noarch.rpm: build *.src.rpm 
-	@echo "Building fc24 noarch Binary RPMs for mock..."
-	mock --verbose --dnf --scrub=all --root=fedora-24-x86_64 --resultdir=./dist --rebuild $(newsrpm)
-
 fc25: dist/*.fc25.noarch.rpm
 
 dist/*.fc25.noarch.rpm: build *.src.rpm 
@@ -54,6 +48,12 @@ fc27: dist/*.fc27.noarch.rpm
 
 dist/*.fc27.noarch.rpm: build *.src.rpm 
 	@echo "Building fc27 noarch Binary RPMs for mock..."
+	mock --verbose --dnf --scrub=all --root=fedora-27-x86_64 --resultdir=./dist --rebuild $(newsrpm)
+
+fc28: dist/*.fc28.noarch.rpm
+
+dist/*.fc28.noarch.rpm: build *.src.rpm 
+	@echo "Building fc28 noarch Binary RPMs for mock..."
 	mock --verbose --dnf --scrub=all --root=fedora-rawhide-x86_64 --resultdir=./dist --rebuild $(newsrpm)
 
 el6: dist/*.el6.noarch.rpm

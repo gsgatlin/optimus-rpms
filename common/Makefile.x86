@@ -1,8 +1,8 @@
-.PHONY: clean install all srpm fc24 fc25 fc26 fc27 el6 el7
+.PHONY: clean install all srpm fc25 fc26 fc27 fc28 el6 el7
 .SUFFIXES: .spec .rpm
-all: build *.src.rpm dist/*.fc24.i686.rpm dist/*.fc24.x86_64.rpm \
-dist/*.fc25.i686.rpm dist/*.fc25.x86_64.rpm dist/*.fc26.i686.rpm \
-dist/*.fc26.x86_64.rpm  dist/*.fc27.i686.rpm  dist/*.fc27.x86_64.rpm \
+all: build *.src.rpm dist/*.fc25.i686.rpm dist/*.fc25.x86_64.rpm \
+dist/*.fc26.i686.rpm dist/*.fc26.x86_64.rpm dist/*.fc27.i686.rpm \
+dist/*.fc27.x86_64.rpm  dist/*.fc28.i686.rpm  dist/*.fc28.x86_64.rpm \
 dist/*.el6.i686.rpm dist/*.el6.x86_64.rpm dist/*.el7.centos.x86_64.rpm \
 dist/*.el7.centos.i686.rpm
 
@@ -33,16 +33,6 @@ srpm: *.src.rpm
 	
 newsrpm = $(shell \ls --color=never *.src.rpm)
 
-fc24: dist/*.fc24.i686.rpm dist/*.fc24.x86_64.rpm
-
-dist/*.fc24.i686.rpm: build *.src.rpm 
-	@echo "Building fc24 i686 Binary RPMs for mock..."
-	mock --verbose --dnf --scrub=all --root=fedora-24-i386 --resultdir=./dist --rebuild $(newsrpm)
-
-dist/*.fc24.x86_64.rpm: build *.src.rpm 
-	@echo "Building fc24 x86_64 Binary RPMs for mock..."
-	mock --verbose --dnf --scrub=all --root=fedora-24-x86_64 --resultdir=./dist --rebuild $(newsrpm)
-
 fc25: dist/*.fc25.i686.rpm dist/*.fc25.x86_64.rpm
 
 dist/*.fc25.i686.rpm: build *.src.rpm 
@@ -67,10 +57,20 @@ fc27: dist/*.fc27.i686.rpm dist/*.fc27.x86_64.rpm
 
 dist/*.fc27.i686.rpm: build *.src.rpm 
 	@echo "Building fc27 i686 Binary RPMs for mock..."
-	mock --verbose --dnf --scrub=all --root=fedora-rawhide-i386 --resultdir=./dist --rebuild $(newsrpm)
+	mock --verbose --dnf --scrub=all --root=fedora-27-i386 --resultdir=./dist --rebuild $(newsrpm)
 
 dist/*.fc27.x86_64.rpm: build *.src.rpm 
 	@echo "Building fc27 x86_64 Binary RPMs for mock..."
+	mock --verbose --dnf --scrub=all --root=fedora-27-x86_64 --resultdir=./dist --rebuild $(newsrpm)
+
+fc28: dist/*.fc28.i686.rpm dist/*.fc28.x86_64.rpm
+
+dist/*.fc28.i686.rpm: build *.src.rpm 
+	@echo "Building fc28 i686 Binary RPMs for mock..."
+	mock --verbose --dnf --scrub=all --root=fedora-rawhide-i386 --resultdir=./dist --rebuild $(newsrpm)
+
+dist/*.fc28.x86_64.rpm: build *.src.rpm 
+	@echo "Building fc28 x86_64 Binary RPMs for mock..."
 	mock --verbose --dnf --scrub=all --root=fedora-rawhide-x86_64 --resultdir=./dist --rebuild $(newsrpm)
 
 el6: dist/*.el6.i686.rpm dist/*.el6.x86_64.rpm
