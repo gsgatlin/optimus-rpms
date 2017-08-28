@@ -359,7 +359,7 @@ fi
 #%endif
 
 %changelog
-* Sun Aug 27 2017 Gary Gatling <gsgatlin@ncsu.edu> - 384.69-1
+* Mon Aug 28 2017 Gary Gatling <gsgatlin@ncsu.edu> - 384.69-1
 - Update to latest long lived branch version.
 
 * Thu Aug 3 2017 Gary Gatling <gsgatlin@ncsu.edu> - 384.59-1
