@@ -1,4 +1,4 @@
-%define bumblebee_nvidia_ver 384.59
+%define bumblebee_nvidia_ver 384.69
 %global debug_package %{nil}
 
 Summary: NVIDIA's proprietary display driver installed for Bumblebee
@@ -359,6 +359,9 @@ fi
 #%endif
 
 %changelog
+* Sun Aug 27 2017 Gary Gatling <gsgatlin@ncsu.edu> - 384.69-1
+- Update to latest long lived branch version.
+
 * Thu Aug 3 2017 Gary Gatling <gsgatlin@ncsu.edu> - 384.59-1
 - Update to latest long lived branch version.
 - Fix SELinux problems on RHEL 7. 
