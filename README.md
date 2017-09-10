@@ -8,37 +8,12 @@ binary and source rpms for various fedora and RHEL based distros.
 
 # Instructions
 
-To get started:
+1. Install mock: `dnf install mock` (or on RHEL: `yum install mock`)
 
-dnf install mock
+2. Add yourself to the "mock" group: `usermod -a -G mock YOURACCOUNTNAME`
 
-or on RHEL:
+3. cd into the directory of the rpm package you wish to build.
 
-yum install mock
-
-Next,
-
-make sure you run
-
-usermod -a -G mock YOURACCOUNTNAME
-
-before you start.
-
-cd into the directory name of the rpm package name you wish to build for.
-
-type 
-
-make
-
-to build for all distros (EL6 EL7 and fedora)
-
-type
-
-make %dist
-
-to build for a specific distro. Like:
-
-make el7
-
-for centos 7 for example.
-
+4. Build:
+   - For all distros run: `make`
+   - For a specific distro run: `make %dist` (e.g `make el7` for CentOS 7)
