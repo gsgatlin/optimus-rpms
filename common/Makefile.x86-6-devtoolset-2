@@ -1,10 +1,9 @@
-.PHONY: clean install all srpm fc25 fc26 fc27 fc28 el6 el7
+.PHONY: clean install all srpm fc26 fc27 fc28 el6 el7
 .SUFFIXES: .spec .rpm
-all: build *.src.rpm dist/*.fc25.i686.rpm dist/*.fc25.x86_64.rpm \
-dist/*.fc26.i686.rpm dist/*.fc26.x86_64.rpm dist/*.fc27.i686.rpm \
-dist/*.fc27.x86_64.rpm  dist/*.fc28.i686.rpm  dist/*.fc28.x86_64.rpm \
-dist/*.el6.i686.rpm dist/*.el6.x86_64.rpm dist/*.el7.centos.x86_64.rpm \
-dist/*.el7.centos.i686.rpm
+all: build *.src.rpm dist/*.fc26.i686.rpm dist/*.fc26.x86_64.rpm \
+dist/*.fc27.i686.rpm dist/*.fc27.x86_64.rpm  dist/*.fc28.i686.rpm \
+dist/*.fc28.x86_64.rpm dist/*.el6.i686.rpm dist/*.el6.x86_64.rpm \
+dist/*.el7.centos.x86_64.rpm dist/*.el7.centos.i686.rpm
 install:
 	@echo "Error: Cannot stage these rpms in this Makefile"
 
@@ -31,16 +30,6 @@ srpm: *.src.rpm
 	-rm -rf ./buildroot
 	
 newsrpm = $(shell \ls --color=never *.src.rpm)
-
-fc25: dist/*.fc25.i686.rpm dist/*.fc25.x86_64.rpm
-
-dist/*.fc25.i686.rpm: build *.src.rpm 
-	@echo "Building fc25 i686 Binary RPMs for mock..."
-	mock --verbose --dnf --scrub=all --root=fedora-25-i386 --resultdir=./dist --rebuild $(newsrpm)
-
-dist/*.fc25.x86_64.rpm: build *.src.rpm 
-	@echo "Building fc25 x86_64 Binary RPMs for mock..."
-	mock --verbose --dnf --scrub=all --root=fedora-25-x86_64 --resultdir=./dist --rebuild $(newsrpm)
 
 fc26: dist/*.fc26.i686.rpm dist/*.fc26.x86_64.rpm
 

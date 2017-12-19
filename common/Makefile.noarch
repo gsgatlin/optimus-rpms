@@ -1,9 +1,8 @@
-.PHONY: clean install all srpm fc25 fc26 fc27 fc28 el6 el7
+.PHONY: clean install all srpm fc26 fc27 fc28 el6 el7
 .SUFFIXES: .spec .rpm
-all: build *.src.rpm dist/*.fc25.noarch.rpm \
-dist/*.fc26.noarch.rpm dist/*.fc27.noarch.rpm \
-dist/*.fc28.noarch.rpm dist/*.el6.noarch.rpm \
-dist/*.el7.centos.noarch.rpm
+all: build *.src.rpm dist/*.fc26.noarch.rpm \
+dist/*.fc27.noarch.rpm dist/*.fc28.noarch.rpm \
+dist/*.el6.noarch.rpm dist/*.el7.centos.noarch.rpm
 
 install:
 	@echo "Error: Cannot stage these rpms in this Makefile"
@@ -31,12 +30,6 @@ srpm: *.src.rpm
 	-rm -rf ./buildroot
 	
 newsrpm = $(shell \ls --color=never *.src.rpm)
-
-fc25: dist/*.fc25.noarch.rpm
-
-dist/*.fc25.noarch.rpm: build *.src.rpm 
-	@echo "Building fc25 noarch Binary RPMs for mock..."
-	mock --verbose --dnf --scrub=all --root=fedora-25-x86_64 --resultdir=./dist --rebuild $(newsrpm)
 
 fc26: dist/*.fc26.noarch.rpm
 
