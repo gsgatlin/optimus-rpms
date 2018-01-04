@@ -119,9 +119,9 @@ install -m 644 $RPM_SOURCE_DIR/bumblebee-nvidia-RHEL7.te $RPM_BUILD_DIR/bumblebe
 %endif
 
 install -m 644 $RPM_SOURCE_DIR/blacklist-nvidia.conf $RPM_BUILD_DIR/blacklist-nvidia.conf
-#%if 0%{?fedora:1}
-#install -m 644 %{SOURCE10}  $RPM_BUILD_DIR/kernel_4.10.patch
-#%endif
+%if 0%{?fedora:1}
+install -m 644 %{SOURCE11}  $RPM_BUILD_DIR/41411.patch
+%endif
 %if 0%{?fedora} >=15 || 0%{?rhel} >= 7
 install -m 644 $RPM_SOURCE_DIR/bumblebee-nvidia.service $RPM_BUILD_DIR/bumblebee-nvidia.service
 %endif
