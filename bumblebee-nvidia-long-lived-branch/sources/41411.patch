@@ -1,0 +1,14 @@
+diff -up NVIDIA-Linux-x86_64-384.98/kernel/nvidia-uvm/uvm8_va_block.c.41411fix NVIDIA-Linux-x86_64-384.98/kernel/nvidia-uvm/uvm8_va_block.c
+--- NVIDIA-Linux-x86_64-384.98/kernel/nvidia-uvm/uvm8_va_block.c.41411fix	2018-01-04 08:33:01.647391818 -0500
++++ NVIDIA-Linux-x86_64-384.98/kernel/nvidia-uvm/uvm8_va_block.c	2018-01-04 08:34:01.937974438 -0500
+@@ -36,6 +36,10 @@
+ #include "uvm8_perf_prefetch.h"
+ #include "uvm8_mem.h"
+ 
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,14,9)
++#include <linux/sched/task_stack.h>
++#endif
++
+ typedef enum
+ {
+     BLOCK_PTE_OP_MAP,
