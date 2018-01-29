@@ -1,10 +1,10 @@
-%define bumblebee_nvidia_ver 384.98
+%define bumblebee_nvidia_ver 390.25
 %global debug_package %{nil}
 
 Summary: NVIDIA's proprietary display driver installed for Bumblebee
 Name: bumblebee-nvidia
 Version: %{bumblebee_nvidia_ver}
-Release: 2%{?dist}
+Release: 1%{?dist}
 License: Redistributable, no modification permitted
 Group: System Environment/Base
 Source0: ftp://download.nvidia.com/XFree86/Linux-x86/%{bumblebee_nvidia_ver}/NVIDIA-Linux-x86-%{bumblebee_nvidia_ver}.run
@@ -18,7 +18,7 @@ Source7: bumblebee-nvidia.conf-32
 Source8: bumblebee-nvidia.conf-64
 Source9: bumblebee-nvidia-sign.conf
 Source10: bumblebee-nvidia-RHEL7.te
-Source11: 41411.patch
+#Source11: 41411.patch
 # Nvidia installer 361.28 https://github.com/NVIDIA/nvidia-installer/commit/1e378a81ceeb06c5899f9c7bfc8dc2f46c52a446
 # Nvidia installer 361.45.11 https://github.com/NVIDIA/nvidia-installer/commit/bdbd855f007f8a1bd36bbafa299a4dff6fd3b9f8
 # Nvidia installer 367.27 https://github.com/NVIDIA/nvidia-installer/commit/349a24fc329abe3ee3d471588b896b9c6b60303a
@@ -119,9 +119,9 @@ install -m 644 $RPM_SOURCE_DIR/bumblebee-nvidia-RHEL7.te $RPM_BUILD_DIR/bumblebe
 %endif
 
 install -m 644 $RPM_SOURCE_DIR/blacklist-nvidia.conf $RPM_BUILD_DIR/blacklist-nvidia.conf
-%if 0%{?fedora:1}
-install -m 644 %{SOURCE11}  $RPM_BUILD_DIR/41411.patch
-%endif
+#%if 0%{?fedora:1}
+#install -m 644 %{SOURCE11}  $RPM_BUILD_DIR/41411.patch
+#%endif
 %if 0%{?fedora} >=15 || 0%{?rhel} >= 7
 install -m 644 $RPM_SOURCE_DIR/bumblebee-nvidia.service $RPM_BUILD_DIR/bumblebee-nvidia.service
 %endif
@@ -165,9 +165,9 @@ install -pm 644 $RPM_BUILD_DIR/blacklist-nvidia.conf $RPM_BUILD_ROOT/etc/modprob
 #install -pm 644 $RPM_BUILD_DIR/nvidia-unload.conf $RPM_BUILD_ROOT/etc/modprobe.d/nvidia-unload.conf
 
 # Example of how to use the patch function for the blob when it becomes necessary. (Which it will)
-%if 0%{?fedora:1}
-install -pm 644 $RPM_BUILD_DIR/41411.patch $RPM_BUILD_ROOT/etc/sysconfig/nvidia/41411.patch
-%endif
+#%if 0%{?fedora:1}
+#install -pm 644 $RPM_BUILD_DIR/41411.patch $RPM_BUILD_ROOT/etc/sysconfig/nvidia/41411.patch
+#%endif
 
 # systemd is a replacement for SysVinit/upstart beginning with fedora 15.
 
@@ -354,11 +354,15 @@ fi
 
 %config /etc/bumblebee/bumblebee-nvidia-sign.conf
 
-%if 0%{?fedora:1}
-/etc/sysconfig/nvidia/41411.patch
-%endif
+#%if 0%{?fedora:1}
+#/etc/sysconfig/nvidia/41411.patch
+#%endif
 
 %changelog
+* Mon Jan 29 2018 Gary Gatling <gsgatlin@ncsu.edu> - 390.25-1
+- remove patch for kernel  4.14.11-*.fc*.x86_64
+- Update to latest long lived branch version.
+
 * Thu Jan 04 2018 Gary Gatling <gsgatlin@ncsu.edu> - 384.98-2
 - add patch for kernel >= 4.14.11-*.fc*.x86_64
 
