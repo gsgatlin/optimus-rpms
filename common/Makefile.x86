@@ -1,9 +1,10 @@
-.PHONY: clean install all srpm fc26 fc27 fc28 el6 el7
+.PHONY: clean install all srpm fc26 fc27 fc28 fc29 el6 el7
 .SUFFIXES: .spec .rpm
 all: build *.src.rpm dist/*.fc26.i686.rpm dist/*.fc26.x86_64.rpm \
 dist/*.fc27.i686.rpm dist/*.fc27.x86_64.rpm  dist/*.fc28.i686.rpm \
-dist/*.fc28.x86_64.rpm dist/*.el6.i686.rpm dist/*.el6.x86_64.rpm \
-dist/*.el7.centos.x86_64.rpm dist/*.el7.centos.i686.rpm
+dist/*.fc28.x86_64.rpm dist/*.fc29.i686.rpm dist/*.fc29.x86_64.rpm \
+dist/*.el6.i686.rpm dist/*.el6.x86_64.rpm dist/*.el7.centos.x86_64.rpm \
+dist/*.el7.centos.i686.rpm
 
 install:
 	@echo "Error: Cannot stage these rpms in this Makefile"
@@ -56,10 +57,20 @@ fc28: dist/*.fc28.i686.rpm dist/*.fc28.x86_64.rpm
 
 dist/*.fc28.i686.rpm: build *.src.rpm 
 	@echo "Building fc28 i686 Binary RPMs for mock..."
-	mock --verbose --dnf --scrub=all --root=fedora-rawhide-i386 --resultdir=./dist --rebuild $(newsrpm)
+	mock --verbose --dnf --scrub=all --root=fedora-28-i386 --resultdir=./dist --rebuild $(newsrpm)
 
 dist/*.fc28.x86_64.rpm: build *.src.rpm 
 	@echo "Building fc28 x86_64 Binary RPMs for mock..."
+	mock --verbose --dnf --scrub=all --root=fedora-28-x86_64 --resultdir=./dist --rebuild $(newsrpm)
+
+fc29: dist/*.fc29.i686.rpm dist/*.fc29.x86_64.rpm
+
+dist/*.fc28.i686.rpm: build *.src.rpm 
+	@echo "Building fc29 i686 Binary RPMs for mock..."
+	mock --verbose --dnf --scrub=all --root=fedora-rawhide-i386 --resultdir=./dist --rebuild $(newsrpm)
+
+dist/*.fc29.x86_64.rpm: build *.src.rpm 
+	@echo "Building fc29 x86_64 Binary RPMs for mock..."
 	mock --verbose --dnf --scrub=all --root=fedora-rawhide-x86_64 --resultdir=./dist --rebuild $(newsrpm)
 
 el6: dist/*.el6.i686.rpm dist/*.el6.x86_64.rpm
