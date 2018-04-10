@@ -1,4 +1,4 @@
-%define bumblebee_nvidia_ver 390.42
+%define bumblebee_nvidia_ver 390.48
 %global debug_package %{nil}
 
 Summary: NVIDIA's proprietary display driver installed for Bumblebee
@@ -359,6 +359,9 @@ fi
 #%endif
 
 %changelog
+* Tue Apr 10 2018 Gary Gatling <gsgatlin@ncsu.edu> - 390.48-1
+- Update to latest long lived branch version.
+
 * Sat Mar 17 2018 Gary Gatling <gsgatlin@ncsu.edu> - 390.42-1
 - Update to latest long lived branch version.
 
