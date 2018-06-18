@@ -1,4 +1,4 @@
-%define bumblebee_nvidia_ver 390.48
+%define bumblebee_nvidia_ver 390.67
 %global debug_package %{nil}
 
 Summary: NVIDIA's proprietary display driver installed for Bumblebee
@@ -18,7 +18,7 @@ Source7: bumblebee-nvidia.conf-32
 Source8: bumblebee-nvidia.conf-64
 Source9: bumblebee-nvidia-sign.conf
 Source10: bumblebee-nvidia-RHEL7.te
-#Source11: 41411.patch
+#Source11: 4.16.X.patch
 # Nvidia installer 361.28 https://github.com/NVIDIA/nvidia-installer/commit/1e378a81ceeb06c5899f9c7bfc8dc2f46c52a446
 # Nvidia installer 361.45.11 https://github.com/NVIDIA/nvidia-installer/commit/bdbd855f007f8a1bd36bbafa299a4dff6fd3b9f8
 # Nvidia installer 367.27 https://github.com/NVIDIA/nvidia-installer/commit/349a24fc329abe3ee3d471588b896b9c6b60303a
@@ -120,7 +120,7 @@ install -m 644 $RPM_SOURCE_DIR/bumblebee-nvidia-RHEL7.te $RPM_BUILD_DIR/bumblebe
 
 install -m 644 $RPM_SOURCE_DIR/blacklist-nvidia.conf $RPM_BUILD_DIR/blacklist-nvidia.conf
 #%if 0%{?fedora:1}
-#install -m 644 %{SOURCE11}  $RPM_BUILD_DIR/41411.patch
+#install -m 644 %{SOURCE11}  $RPM_BUILD_DIR/4.16.X.patch
 #%endif
 %if 0%{?fedora} >=15 || 0%{?rhel} >= 7
 install -m 644 $RPM_SOURCE_DIR/bumblebee-nvidia.service $RPM_BUILD_DIR/bumblebee-nvidia.service
@@ -166,7 +166,7 @@ install -pm 644 $RPM_BUILD_DIR/blacklist-nvidia.conf $RPM_BUILD_ROOT/etc/modprob
 
 # Example of how to use the patch function for the blob when it becomes necessary. (Which it will)
 #%if 0%{?fedora:1}
-#install -pm 644 $RPM_BUILD_DIR/41411.patch $RPM_BUILD_ROOT/etc/sysconfig/nvidia/41411.patch
+#install -pm 644 $RPM_BUILD_DIR/4.16.X.patch $RPM_BUILD_ROOT/etc/sysconfig/nvidia/4.16.X.patch
 #%endif
 
 # systemd is a replacement for SysVinit/upstart beginning with fedora 15.
@@ -355,10 +355,17 @@ fi
 %config /etc/bumblebee/bumblebee-nvidia-sign.conf
 
 #%if 0%{?fedora:1}
-#/etc/sysconfig/nvidia/41411.patch
+#/etc/sysconfig/nvidia/4.16.X.patch
 #%endif
 
 %changelog
+* Sun Jun 17 2018 Gary Gatling <gsgatlin@ncsu.edu> - 390.67-1
+- Update to latest long lived branch version.
+- remove patch for 4.16 kernel on fedora.
+
+* Fri Apr 27 2018 Gary Gatling <gsgatlin@ncsu.edu> - 390.48-2
+- Add patch for 4.16 kernel on fedora.
+
 * Tue Apr 10 2018 Gary Gatling <gsgatlin@ncsu.edu> - 390.48-1
 - Update to latest long lived branch version.
 

@@ -1,9 +1,8 @@
-.PHONY: clean install all srpm fc26 fc27 fc28 fc29 el6 el7
+.PHONY: clean install all srpm fc27 fc28 fc29 el6 el7
 .SUFFIXES: .spec .rpm
-all: build *.src.rpm dist/*.fc26.noarch.rpm \
-dist/*.fc27.noarch.rpm dist/*.fc28.noarch.rpm \
-dist/*.fc29.noarch.rpm dist/*.el6.noarch.rpm \
-dist/*.el7.centos.noarch.rpm
+all: build *.src.rpm dist/*.fc27.noarch.rpm \
+dist/*.fc28.noarch.rpm dist/*.fc29.noarch.rpm \
+dist/*.el6.noarch.rpm dist/*.el7.noarch.rpm
 
 install:
 	@echo "Error: Cannot stage these rpms in this Makefile"
@@ -32,12 +31,6 @@ srpm: *.src.rpm
 	
 newsrpm = $(shell \ls --color=never *.src.rpm)
 
-fc26: dist/*.fc26.noarch.rpm
-
-dist/*.fc26.noarch.rpm: build *.src.rpm 
-	@echo "Building fc26 noarch Binary RPMs for mock..."
-	mock --verbose --dnf --scrub=all --root=fedora-26-x86_64 --resultdir=./dist --rebuild $(newsrpm)
-
 fc27: dist/*.fc27.noarch.rpm
 
 dist/*.fc27.noarch.rpm: build *.src.rpm 
@@ -62,9 +55,9 @@ dist/*.el6.noarch.rpm: build *.src.rpm
 	@echo "Building el6 noarch Binary RPMs for mock..."
 	mock --verbose --yum --scrub=all --root=epel-6-x86_64 --resultdir=./dist --rebuild $(newsrpm)
 
-el7: dist/*.el7.centos.noarch.rpm
+el7: dist/*.el7.noarch.rpm
 
-dist/*.el7.centos.noarch.rpm: build *.src.rpm
+dist/*.el7.noarch.rpm: build *.src.rpm
 	@echo "Building el7 noarch Binary RPMs for mock..."
 	mock --verbose --yum --scrub=all --root=epel-7-x86_64 --resultdir=./dist --rebuild $(newsrpm)
 
