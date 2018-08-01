@@ -1,0 +1,16 @@
+diff -up bumblebee-3.2.1/src/bblogger.c.boguserror bumblebee-3.2.1/src/bblogger.c
+--- bumblebee-3.2.1/src/bblogger.c.boguserror	2018-08-01 14:14:12.081122137 -0400
++++ bumblebee-3.2.1/src/bblogger.c	2018-08-01 14:16:27.169474676 -0400
+@@ -144,7 +144,11 @@ static void parse_xorg_output(char * str
+   /* Error lines are errors. */
+   if (strncmp(string, "(EE)", 4) == 0){
+     if (strstr(string, "Failed to load module \"kbd\"") ||
+-            strstr(string, "No input driver matching")) {
++             strstr(string, "Failed to load module \"mouse\"") ||
++             strstr(string, "failed to set DRM interface version 1.4:") ||
++             strstr(string, "No input driver matching") ||
++             strstr(string, "systemd-logind: failed to get session:") ||
++             strstr(string, "Server terminated successfully")) {
+       /* non-fatal errors */
+       prio = LOG_DEBUG;
+     } else {

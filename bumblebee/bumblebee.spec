@@ -3,7 +3,7 @@ Summary:        Daemon managing Optimus hybrid graphics chip sets
 Name:           bumblebee
 Version:        3.2.1
 URL:            http://bumblebee-project.org/
-Release:        13%{?dist}
+Release:        14%{?dist}
 License:        GPLv3+
 Group:          System Environment/Base
 Source0:        http://www.bumblebee-project.org/%{name}-%{version}.tar.gz
@@ -13,6 +13,7 @@ Patch0:         %{name}-xorgwrapfix.patch
 Patch1:         %{name}-f23xorgnvidiafix.patch
 Patch2:         %{name}-modprobefix.patch
 Patch3:         %{name}-libglvndfix.patch
+Patch4:         %{name}-boguserror.patch
 BuildRequires:  autoconf
 BuildRequires:  automake
 BuildRequires:  libbsd-devel
@@ -64,6 +65,8 @@ install -m 644 %{SOURCE1} $RPM_BUILD_DIR/%{name}-%{version}/
 %patch2 -p1 -b .modprobefix
 
 %patch3 -p1 -b .libglvndfix
+
+%patch4 -p1 -b .boguserror
 
 %build
 
@@ -195,6 +198,10 @@ fi
 %{_sysconfdir}/modprobe.d/bumblebee.conf
 
 %changelog
+* Wed Aug 1 2018 Gary Gatling <gsgatlin@ncsu.edu> - 3.2.1-14
+- add bumblebee-boguserror.patch for
+- https://github.com/Bumblebee-Project/Bumblebee/issues/974
+
 * Fri Feb 10 2017 Gary Gatling <gsgatlin@ncsu.edu> - 3.2.1-13
 - Add bumblebee-libglvndfix.patch because of addition of libglvnd
   to fedora 26 and possibly fedora 25.
