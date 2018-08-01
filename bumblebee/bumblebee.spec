@@ -20,6 +20,7 @@ BuildRequires:  libbsd-devel
 BuildRequires:  glib2-devel
 BuildRequires:  libX11-devel
 BuildRequires:  help2man
+BuildRequires:  gcc
 %if 0%{?fedora:1} || 0%{?rhel} >= 7
 BuildRequires:  kmod-devel
 %endif
