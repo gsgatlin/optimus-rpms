@@ -2,7 +2,7 @@ Summary:        Faster OpenGL offloading for Bumblebee
 Name:		primus
 Version:        1.1.03282015
 URL:            https://github.com/amonakov/primus
-Release:        5%{?dist}
+Release:        6%{?dist}
 License:        ISC
 Group:          System Environment/Base
 BuildRoot:	%{_tmppath}/%{name}-%{version}-build
@@ -13,6 +13,8 @@ Patch2:         %{name}-1.1-libglvndfix.patch
 BuildRequires:  unzip
 BuildRequires:  mesa-libGL-devel >= 8.0.4
 BuildRequires:  libX11-devel
+BuildRequires:  gcc
+BuildRequires:  gcc-c++
 Requires:	bumblebee
 Requires:	bumblebee-nvidia
 Requires:       mesa-libGL%{?_isa} >= 8.0.4
@@ -86,6 +88,9 @@ install -m 644 $RPM_BUILD_DIR/%{name}-master/primusrun.1  $RPM_BUILD_ROOT/%{_man
 %{_bindir}/primusrun
 
 %changelog
+* Tue Nov 20 2018 Gary Gatling <gsgatlin@ncsu.edu> - 1.1.03282015-6
+- fix for build issues on fedora 29+
+
 * Tue Feb 28 2017 Gary Gatling <gsgatlin@ncsu.edu> - 1.1.03282015-5
 - Make package use devtoolset-2 in special mock config on el6.
 

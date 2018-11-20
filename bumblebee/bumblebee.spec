@@ -3,7 +3,7 @@ Summary:        Daemon managing Optimus hybrid graphics chip sets
 Name:           bumblebee
 Version:        3.2.1
 URL:            http://bumblebee-project.org/
-Release:        13%{?dist}
+Release:        14%{?dist}
 License:        GPLv3+
 Group:          System Environment/Base
 Source0:        http://www.bumblebee-project.org/%{name}-%{version}.tar.gz
@@ -19,6 +19,7 @@ BuildRequires:  libbsd-devel
 BuildRequires:  glib2-devel
 BuildRequires:  libX11-devel
 BuildRequires:  help2man
+BuildRequires:  gcc
 %if 0%{?fedora:1} || 0%{?rhel} >= 7
 BuildRequires:  kmod-devel
 %endif
@@ -195,6 +196,9 @@ fi
 %{_sysconfdir}/modprobe.d/bumblebee.conf
 
 %changelog
+* Tue Nov 20 2018 Gary Gatling <gsgatlin@ncsu.edu> - 3.2.1-14
+- fix for build issues on fedora 29+
+
 * Fri Feb 10 2017 Gary Gatling <gsgatlin@ncsu.edu> - 3.2.1-13
 - Add bumblebee-libglvndfix.patch because of addition of libglvnd
   to fedora 26 and possibly fedora 25.

@@ -1,8 +1,9 @@
-.PHONY: clean install all srpm fc27 fc28 fc29 el6 el7
+.PHONY: clean install all srpm fc27 fc28 fc29 fc30 el6 el7
 .SUFFIXES: .spec .rpm
 all: build *.src.rpm dist/*.fc27.noarch.rpm \
 dist/*.fc28.noarch.rpm dist/*.fc29.noarch.rpm \
-dist/*.el6.noarch.rpm dist/*.el7.noarch.rpm
+dist/*.fc30.noarch.rpm dist/*.el6.noarch.rpm \
+dist/*.el7.noarch.rpm
 
 install:
 	@echo "Error: Cannot stage these rpms in this Makefile"
@@ -47,7 +48,13 @@ fc29: dist/*.fc29.noarch.rpm
 
 dist/*.fc29.noarch.rpm: build *.src.rpm 
 	@echo "Building fc29 noarch Binary RPMs for mock..."
-	mock --verbose --dnf --scrub=all --root=fedora-rawhide-x86_64 --resultdir=./dist --rebuild $(newsrpm)
+	mock --verbose --dnf --scrub=all --root=fedora-29-x86_64 --resultdir=./dist --rebuild $(newsrpm)
+
+fc30: dist/*.fc30.noarch.rpm
+
+dist/*.fc30.noarch.rpm: build *.src.rpm 
+	@echo "Building fc30 noarch Binary RPMs for mock..."
+	mock --verbose --dnf --scrub=all --root=fedora-30-x86_64 --resultdir=./dist --rebuild $(newsrpm)
 
 el6: dist/*.el6.noarch.rpm
 
