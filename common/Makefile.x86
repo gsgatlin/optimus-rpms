@@ -63,7 +63,7 @@ dist/*.fc29.x86_64.rpm: build *.src.rpm
 	@echo "Building fc29 x86_64 Binary RPMs for mock..."
 	mock --verbose --dnf --scrub=all --root=fedora-29-x86_64 --resultdir=./dist --rebuild $(newsrpm)
 
-fc30: dist/*.fc29.i686.rpm dist/*.fc30.x86_64.rpm
+fc30: dist/*.fc30.i686.rpm dist/*.fc30.x86_64.rpm
 
 dist/*.fc30.i686.rpm: build *.src.rpm 
 	@echo "Building fc30 i686 Binary RPMs for mock..."
