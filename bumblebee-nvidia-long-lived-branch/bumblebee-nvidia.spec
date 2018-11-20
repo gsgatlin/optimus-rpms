@@ -1,4 +1,4 @@
-%define bumblebee_nvidia_ver 390.77
+%define bumblebee_nvidia_ver 410.73
 %global debug_package %{nil}
 
 Summary: NVIDIA's proprietary display driver installed for Bumblebee
@@ -7,7 +7,7 @@ Version: %{bumblebee_nvidia_ver}
 Release: 1%{?dist}
 License: Redistributable, no modification permitted
 Group: System Environment/Base
-Source0: ftp://download.nvidia.com/XFree86/Linux-x86/%{bumblebee_nvidia_ver}/NVIDIA-Linux-x86-%{bumblebee_nvidia_ver}.run
+#Source0: ftp://download.nvidia.com/XFree86/Linux-x86/%{bumblebee_nvidia_ver}/NVIDIA-Linux-x86-%{bumblebee_nvidia_ver}.run
 Source1: ftp://download.nvidia.com/XFree86/Linux-x86_64/%{bumblebee_nvidia_ver}/NVIDIA-Linux-x86_64-%{bumblebee_nvidia_ver}.run
 Source2: bumblebee-nvidia
 Source3: bumblebee-nvidia-fedora.te
@@ -359,6 +359,10 @@ fi
 #%endif
 
 %changelog
+* Tue Nov 20 2018 Gary Gatling <gsgatlin@ncsu.edu> - 410.73-1
+- Update to latest long lived branch version.
+- Nvidia drops 32 bit support. Sorry 32 bit users...
+
 * Sat Jul 28 2018 Gary Gatling <gsgatlin@ncsu.edu> - 390.77-1
 - Update to latest long lived branch version.
 

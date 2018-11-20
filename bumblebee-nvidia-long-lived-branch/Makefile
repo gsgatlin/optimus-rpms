@@ -1,1 +1,1 @@
-../common/Makefile.x86
+../common/Makefile.x86_64
