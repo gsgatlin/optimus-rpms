@@ -17,3 +17,6 @@ binary and source rpms for various fedora and RHEL based distros.
 4. Build:
    - For all distros run: `make`
    - For a specific distro run: `make %dist` (e.g `make el7` for CentOS 7)
+
+You cannot build for fedora on RHEL 6 or RHEL 7 due to changes caused by dnf.
+You can use RHEL 8 to build for fedora if you like.
