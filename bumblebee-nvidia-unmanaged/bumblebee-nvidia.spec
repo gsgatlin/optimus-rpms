@@ -3,7 +3,7 @@
 Summary: NVIDIA's proprietary display driver installed for Bumblebee
 Name: bumblebee-nvidia
 Version: %{bumblebee_nvidia_ver}
-Release: 5%{?dist}
+Release: 6%{?dist}
 License: Redistributable, no modification permitted
 Group: System Environment/Base
 #Source0: ftp://download.nvidia.com/XFree86/Linux-x86/%{bumblebee_nvidia_ver}/NVIDIA-Linux-x86-%{bumblebee_nvidia_ver}.run
@@ -312,6 +312,9 @@ fi
 
 
 %changelog
+* Wed Dec 12 2018 Gary Gatling <gsgatlin@ncsu.edu> - 3.0-6
+- Fix minor diff between managed and unmanaged scripts.
+
 * Thu Aug 3 2017 Gary Gatling <gsgatlin@ncsu.edu> - 3.0-5
 - Fix SELinux problems on RHEL 7. 
 

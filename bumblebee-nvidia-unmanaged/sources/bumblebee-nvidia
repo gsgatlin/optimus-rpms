@@ -570,6 +570,8 @@ if [ ! -e "/etc/sysconfig/nvidia/`uname -r`-installed" ]  || [ "$forcenvidia" ];
           # Are we running systemd? upstart is taken care of already...
           if [ -x /bin/systemctl ]; then
                /bin/systemctl restart bumblebeed.service
+               # Fix for recent fedora SELinux issue.
+               /sbin/restorecon -v /etc/ld.so.cache
           fi
 
           # Remove compile flag if it exists.
