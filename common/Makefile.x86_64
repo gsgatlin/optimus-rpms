@@ -1,6 +1,6 @@
-.PHONY: clean install all srpm fc27 fc28 fc29 fc30 el6 el7
+.PHONY: clean install all srpm fc28 fc29 fc30 fc31 el6 el7
 .SUFFIXES: .spec .rpm
-all: build *.src.rpm dist/*.fc27.x86_64.rpm \
+all: build *.src.rpm \
 dist/*.fc28.x86_64.rpm dist/*.fc29.x86_64.rpm \
 dist/*.fc30.x86_64.rpm dist/*.el6.x86_64.rpm \
 dist/*.el7.x86_64.rpm
@@ -32,12 +32,6 @@ srpm: *.src.rpm
 	
 newsrpm = $(shell \ls --color=never *.src.rpm)
 
-fc27: dist/*.fc27.x86_64.rpm
-
-dist/*.fc27.x86_64.rpm: build *.src.rpm 
-	@echo "Building fc27 x86_64 Binary RPMs for mock..."
-	mock --verbose --dnf --scrub=all --root=fedora-27-x86_64 --resultdir=./dist --rebuild $(newsrpm)
-
 fc28: dist/*.fc28.x86_64.rpm
 
 dist/*.fc28.x86_64.rpm: build *.src.rpm 
@@ -55,7 +49,6 @@ fc30: dist/*.fc30.x86_64.rpm
 dist/*.fc30.x86_64.rpm: build *.src.rpm 
 	@echo "Building fc30 x86_64 Binary RPMs for mock..."
 	mock --verbose --dnf --scrub=all --root=fedora-30-x86_64 --resultdir=./dist --rebuild $(newsrpm)
-
 
 el6: dist/*.el6.x86_64.rpm
 
