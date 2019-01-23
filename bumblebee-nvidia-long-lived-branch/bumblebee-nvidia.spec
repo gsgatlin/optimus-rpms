@@ -1,4 +1,4 @@
-%define bumblebee_nvidia_ver 410.73
+%define bumblebee_nvidia_ver 410.93
 %global debug_package %{nil}
 
 Summary: NVIDIA's proprietary display driver installed for Bumblebee
@@ -359,6 +359,9 @@ fi
 #%endif
 
 %changelog
+* Tue Jan 22 2019 Gary Gatling <gsgatlin@ncsu.edu> - 410.93-1
+- Update to latest long lived branch version.
+
 * Tue Nov 20 2018 Gary Gatling <gsgatlin@ncsu.edu> - 410.73-1
 - Update to latest long lived branch version.
 - Nvidia drops 32 bit support. Sorry 32 bit users...
