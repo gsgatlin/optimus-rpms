@@ -8,7 +8,7 @@ binary and source rpms for various fedora and RHEL based distros.
 
 # Instructions
 
-1. Install mock: `dnf install mock` (or on RHEL: `yum install mock`)
+1. Install mock: `dnf install mock` 
 
 2. Add yourself to the "mock" group: `usermod -a -G mock YOURACCOUNTNAME`
 
@@ -18,5 +18,11 @@ binary and source rpms for various fedora and RHEL based distros.
    - For all distros run: `make`
    - For a specific distro run: `make %dist` (e.g `make el7` for CentOS 7)
 
-You cannot build for fedora on RHEL 6 or RHEL 7 due to changes caused by dnf.
-You can use RHEL 8 to build for fedora if you like.
+Some new build options exist which are not part of "all" which are:
+
+make rhelbeta8 
+
+This build process only works on the fedora distribution at this time. 
+Obviously the resultant binary rpms should be installed in the proper 
+distro such as CentOS 6, EL7, etc.
+
