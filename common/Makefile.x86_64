@@ -1,9 +1,8 @@
-.PHONY: clean install all srpm fc28 fc29 fc30 fc31 el6 el7
+.PHONY: clean install all srpm fc28 fc29 fc30 fc31 el6 el7 rhelbeta8
 .SUFFIXES: .spec .rpm
-all: build *.src.rpm \
+all: build *.src.rpm dist/*.el6.x86_64.rpm dist/*.el7.x86_64.rpm \
 dist/*.fc28.x86_64.rpm dist/*.fc29.x86_64.rpm \
-dist/*.fc30.x86_64.rpm dist/*.el6.x86_64.rpm \
-dist/*.el7.x86_64.rpm
+dist/*.fc30.x86_64.rpm dist/*.fc31.x86_64.rpm \
 
 install:
 	@echo "Error: Cannot stage these rpms in this Makefile"
@@ -32,6 +31,18 @@ srpm: *.src.rpm
 	
 newsrpm = $(shell \ls --color=never *.src.rpm)
 
+el6: dist/*.el6.x86_64.rpm
+
+dist/*.el6.x86_64.rpm: build *.src.rpm
+	@echo "Building el6 x86_64 Binary RPMs for mock..."
+	mock --verbose --yum --scrub=all --root=epel-6-x86_64 --resultdir=./dist --rebuild $(newsrpm)
+
+el7: dist/*.el7.x86_64.rpm
+
+dist/*.el7.x86_64.rpm: build *.src.rpm
+	@echo "Building el7 x86_64 Binary RPMs for mock..."
+	mock --verbose --yum --scrub=all --root=epel-7-x86_64 --resultdir=./dist --rebuild $(newsrpm)
+
 fc28: dist/*.fc28.x86_64.rpm
 
 dist/*.fc28.x86_64.rpm: build *.src.rpm 
@@ -50,15 +61,15 @@ dist/*.fc30.x86_64.rpm: build *.src.rpm
 	@echo "Building fc30 x86_64 Binary RPMs for mock..."
 	mock --verbose --dnf --scrub=all --root=fedora-30-x86_64 --resultdir=./dist --rebuild $(newsrpm)
 
-el6: dist/*.el6.x86_64.rpm
+fc31: dist/*.fc31.x86_64.rpm
 
-dist/*.el6.x86_64.rpm: build *.src.rpm
-	@echo "Building el6 x86_64 Binary RPMs for mock..."
-	mock --verbose --yum --scrub=all --root=epel-6-x86_64 --resultdir=./dist --rebuild $(newsrpm)
+dist/*.fc31.x86_64.rpm: build *.src.rpm 
+	@echo "Building fc31 x86_64 Binary RPMs for mock..."
+	mock --verbose --dnf --scrub=all --root=fedora-31-x86_64 --resultdir=./dist --rebuild $(newsrpm)
 
-el7: dist/*.el7.x86_64.rpm
+rhelbeta8: dist/*.el8.x86_64.rpm
 
-dist/*.el7.x86_64.rpm: build *.src.rpm
-	@echo "Building el7 x86_64 Binary RPMs for mock..."
-	mock --verbose --yum --scrub=all --root=epel-7-x86_64 --resultdir=./dist --rebuild $(newsrpm)
+dist/*.el8.x86_64.rpm: build *.src.rpm
+	@echo "Building el8beta x86_64 Binary RPMs for mock..."
+	mock --verbose --dnf --scrub=all --root=rhelbeta-8-x86_64 --resultdir=./dist --rebuild $(newsrpm)
 
