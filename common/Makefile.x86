@@ -6,6 +6,7 @@ dist/*.fc28.i686.rpm dist/*.fc28.x86_64.rpm dist/*.fc29.i686.rpm \
 dist/*.fc29.x86_64.rpm  dist/*.fc30.i686.rpm dist/*.fc30.x86_64.rpm \
 dist/*.fc31.i686.rpm dist/*.fc31.x86_64.rpm
 
+install:
 	@echo "Error: Cannot stage these rpms in this Makefile"
 
 build: 
