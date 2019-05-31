@@ -1,8 +1,7 @@
-.PHONY: clean install all srpm fc28 fc29 fc30 fc31 el6 el7 rhelbeta8
+.PHONY: clean install all srpm fc29 fc30 fc31 el6 el7 rhelbeta8
 .SUFFIXES: .spec .rpm
 all: build *.src.rpm dist/*.el6.noarch.rpm \
-dist/*.el7.noarch.rpm \
-dist/*.fc28.noarch.rpm dist/*.fc29.noarch.rpm \
+dist/*.el7.noarch.rpm  dist/*.fc29.noarch.rpm \
 dist/*.fc30.noarch.rpm dist/*.fc31.noarch.rpm
 
 install:
@@ -43,12 +42,6 @@ el7: dist/*.el7.noarch.rpm
 dist/*.el7.noarch.rpm: build *.src.rpm
 	@echo "Building el7 noarch Binary RPMs for mock..."
 	mock --verbose --yum --scrub=all --root=epel-7-x86_64 --resultdir=./dist --rebuild $(newsrpm)
-
-fc28: dist/*.fc28.noarch.rpm
-
-dist/*.fc28.noarch.rpm: build *.src.rpm 
-	@echo "Building fc28 noarch Binary RPMs for mock..."
-	mock --verbose --dnf --scrub=all --root=fedora-28-x86_64 --resultdir=./dist --rebuild $(newsrpm)
 
 fc29: dist/*.fc29.noarch.rpm
 
