@@ -1,9 +1,9 @@
-%define bumblebee_nvidia_ver 3.0
+%define bumblebee_nvidia_ver 3.1
 
 Summary: NVIDIA's proprietary display driver installed for Bumblebee
 Name: bumblebee-nvidia
 Version: %{bumblebee_nvidia_ver}
-Release: 6%{?dist}
+Release: 1%{?dist}
 License: Redistributable, no modification permitted
 Group: System Environment/Base
 #Source0: ftp://download.nvidia.com/XFree86/Linux-x86/%{bumblebee_nvidia_ver}/NVIDIA-Linux-x86-%{bumblebee_nvidia_ver}.run
@@ -312,6 +312,11 @@ fi
 
 
 %changelog
+
+* Wed Jun 5 2019 Gary Gatling <gsgatlin@ncsu.edu> - 3.1-1
+- Changes to bumblebee-nvidia script to not use glvnd flags
+
+
 * Wed Dec 12 2018 Gary Gatling <gsgatlin@ncsu.edu> - 3.0-6
 - Fix minor diff between managed and unmanaged scripts.
 

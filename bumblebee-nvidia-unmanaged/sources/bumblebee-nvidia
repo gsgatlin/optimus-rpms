@@ -108,9 +108,11 @@ echo "Warning! This NVIDIA driver has not compiled successfully before on kernel
 fail="TRUE"
 fi
 
-if [ ! -e "/usr/$bumblebee_libdir/nvidia-bumblebee/libGL.so.1" ]; then
+
+if [ ! -L "/usr/$bumblebee_libdir/nvidia-bumblebee/libGLX_nvidia.so.0" ]; then
+
 echo "Warning! This NVIDIA driver userland"
-echo " /usr/lib64/nvidia-bumblebee/libGL.so.1 library is missing!"
+echo " /usr/$bumblebee_libdir/nvidia-bumblebee/libGLX_nvidia.so.0 library symlink is missing!"
 fail="TRUE"
 fi
 
@@ -411,15 +413,6 @@ if [ ! -e "/etc/sysconfig/nvidia/`uname -r`-installed" ]  || [ "$forcenvidia" ];
           
      fi
 
-     # They added libglvnd in fedora 25/26 but we need to not use that 
-     # due to primus issues. Lets see if the package was installed by mesa.
-     libglvndtest=`rpm -q libglvnd | grep -v "is not installed"`
-     if [ "$libglvndtest" == "" ] ; then
-         bumblebee_libglvnd=""
-     else
-         bumblebee_libglvnd="--no-libglx-indirect --no-install-libglvnd --no-glvnd-glx-client --no-glvnd-egl-client"
-     fi
-
 
 
      echo -n "Building NVIDIA video drivers: "
@@ -498,10 +491,10 @@ if [ ! -e "/etc/sysconfig/nvidia/`uname -r`-installed" ]  || [ "$forcenvidia" ];
      export IGNORE_CC_MISMATCH="1"
 
      if [  -n "$forcedebug" ]; then
-          ./nvidia-installer --accept-license --silent --no-x-check --no-nouveau-check --no-recursion --opengl-libdir=$bumblebee_libdir/nvidia-bumblebee --opengl-prefix=/usr --x-library-path=$bumblebee_libdir/nvidia-bumblebee --x-prefix=/usr --x-module-path=/usr/$bumblebee_libdir/nvidia-bumblebee/xorg/modules $bumblebee_libglvnd $sign_driver $bumblebee_lastarg $nvidia_installer_special_args
+          ./nvidia-installer --accept-license --silent --no-x-check --no-nouveau-check --no-recursion --opengl-libdir=$bumblebee_libdir/nvidia-bumblebee --opengl-prefix=/usr --x-library-path=$bumblebee_libdir/nvidia-bumblebee --x-prefix=/usr --x-module-path=/usr/$bumblebee_libdir/nvidia-bumblebee/xorg/modules $sign_driver $bumblebee_lastarg $nvidia_installer_special_args
           vidcompile=$?
      else
-          ./nvidia-installer --accept-license --silent --no-x-check --no-nouveau-check --no-recursion --opengl-libdir=$bumblebee_libdir/nvidia-bumblebee --opengl-prefix=/usr --x-library-path=$bumblebee_libdir/nvidia-bumblebee --x-prefix=/usr --x-module-path=/usr/$bumblebee_libdir/nvidia-bumblebee/xorg/modules $bumblebee_libglvnd $sign_driver $bumblebee_lastarg $nvidia_installer_special_args > /dev/null 2>&1
+          ./nvidia-installer --accept-license --silent --no-x-check --no-nouveau-check --no-recursion --opengl-libdir=$bumblebee_libdir/nvidia-bumblebee --opengl-prefix=/usr --x-library-path=$bumblebee_libdir/nvidia-bumblebee --x-prefix=/usr --x-module-path=/usr/$bumblebee_libdir/nvidia-bumblebee/xorg/modules $sign_driver $bumblebee_lastarg $nvidia_installer_special_args > /dev/null 2>&1
           vidcompile=$?
      fi
      cd ..
