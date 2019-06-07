@@ -585,7 +585,9 @@ if [ ! -e "/etc/sysconfig/nvidia/`uname -r`-installed" ]  || [ "$forcenvidia" ];
 
           # Fix the desktop launcher in the menu system.
 
-          sed -i 's@/usr/bin/nvidia-settings@optirun -b none nvidia-settings -c :8@' /usr/share/applications/nvidia-settings.desktop
+          if [ -e /usr/share/applications/nvidia-settings.desktop ]; then
+               sed -i 's@/usr/bin/nvidia-settings@optirun -b none nvidia-settings -c :8@' /usr/share/applications/nvidia-settings.desktop
+          fi
 
      else
 
