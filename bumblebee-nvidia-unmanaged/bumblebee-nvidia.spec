@@ -39,8 +39,9 @@ Requires: kernel-PAE-devel
 %endif
 %endif
 Requires: bumblebee gcc kernel-devel make glibc-devel
-%if 0%{?fedora} >=18 || 0%{?rhel} >= 7
-Requires: pangox-compat 
+%if 0%{?fedora} >=28 || 0%{?rhel} >= 7
+Requires: pangox-compat
+Requires: libglvnd-opengl
 %endif
 Requires:        patch
 Conflicts:       xorg-x11-drv-nvidia-beta
@@ -313,7 +314,7 @@ fi
 
 %changelog
 
-* Wed Jun 5 2019 Gary Gatling <gsgatlin@ncsu.edu> - 3.1-1
+* Fri Jun 7 2019 Gary Gatling <gsgatlin@ncsu.edu> - 3.1-1
 - Changes to bumblebee-nvidia script to not use glvnd flags
 
 
