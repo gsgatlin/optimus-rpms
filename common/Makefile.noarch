@@ -47,8 +47,7 @@ el8: dist/*.el8.noarch.rpm
 
 dist/*.el8.noarch.rpm: build *.src.rpm
 	@echo "Building el8 noarch Binary RPMs for mock..."
-	mock --verbose --yum --scrub=all --root=epel-8-x86_64 --resultdir=./dist --rebuild $(newsrpm)
-
+	mock --verbose --dnf --scrub=all --root=epel-8-x86_64 --resultdir=./dist --rebuild $(newsrpm)
 
 fc31: dist/*.fc31.noarch.rpm
 
