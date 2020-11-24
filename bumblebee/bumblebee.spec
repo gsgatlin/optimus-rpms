@@ -3,7 +3,7 @@ Summary:        Daemon managing Optimus hybrid graphics chip sets
 Name:           bumblebee
 Version:        3.2.1
 URL:            http://bumblebee-project.org/
-Release:        14%{?dist}
+Release:        15%{?dist}
 License:        GPLv3+
 Group:          System Environment/Base
 Source0:        http://www.bumblebee-project.org/%{name}-%{version}.tar.gz
@@ -13,6 +13,7 @@ Patch0:         %{name}-xorgwrapfix.patch
 Patch1:         %{name}-f23xorgnvidiafix.patch
 Patch2:         %{name}-modprobefix.patch
 Patch3:         %{name}-libglvndfix.patch
+Patch4:         %{name}-gcc-10.patch
 BuildRequires:  autoconf
 BuildRequires:  automake
 BuildRequires:  libbsd-devel
@@ -66,6 +67,9 @@ install -m 644 %{SOURCE1} $RPM_BUILD_DIR/%{name}-%{version}/
 
 %patch3 -p1 -b .libglvndfix
 
+%if 0%{?fedora} >31
+%patch4 -p1 -b .gcc10fix
+%endif
 %build
 
 %if 0%{?rhel} == 6
@@ -196,6 +200,9 @@ fi
 %{_sysconfdir}/modprobe.d/bumblebee.conf
 
 %changelog
+* Tue Nov 24 2020 Gary Gatling <gsgatlin@ncsu.edu> - 3.2.1-15
+- fix for build issues on fedora 32+
+
 * Tue Nov 20 2018 Gary Gatling <gsgatlin@ncsu.edu> - 3.2.1-14
 - fix for build issues on fedora 29+
 
