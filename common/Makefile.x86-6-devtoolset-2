@@ -1,7 +1,7 @@
 .PHONY: clean install all srpm fc31 fc32 fc33 el6 el7 el8
 .SUFFIXES: .spec .rpm
 all: build *.src.rpm dist/*.el6.i686.rpm dist/*.el6.x86_64.rpm \
-dist/*.el7.x86_64.rpm dist/*.fc31.i686.rpm \
+dist/*.el7.x86_64.rpm dist/*.el8.x86_64.rpm dist/*.fc31.i686.rpm \
 dist/*.fc31.x86_64.rpm dist/*.fc32.i686.rpm dist/*.fc32.x86_64.rpm \
 dist/*.fc33.i686.rpm dist/*.fc33.x86_64.rpm
 
