@@ -1,8 +1,8 @@
-.PHONY: clean install all srpm fc31 fc32 fc33 el6 el7 el8
+.PHONY: clean install all srpm fc32 fc33 fc34 el7 el8
 .SUFFIXES: .spec .rpm
-all: build *.src.rpm dist/*.el6.noarch.rpm \
-dist/*.el7.noarch.rpm  dist/*.el8.noarch.rpm dist/*.fc31.noarch.rpm \
-dist/*.fc32.noarch.rpm dist/*.fc33.noarch.rpm
+all: build *.src.rpm dist/*.el7.noarch.rpm  \
+dist/*.el8.noarch.rpm dist/*.fc32.noarch.rpm \
+dist/*.fc33.noarch.rpm dist/*.fc34.noarch.rpm
 
 install:
 	@echo "Error: Cannot stage these rpms in this Makefile"
@@ -31,12 +31,6 @@ srpm: *.src.rpm
 	
 newsrpm = $(shell \ls --color=never *.src.rpm)
 
-el6: dist/*.el6.noarch.rpm
-
-dist/*.el6.noarch.rpm: build *.src.rpm
-	@echo "Building el6 noarch Binary RPMs for mock..."
-	mock --verbose --yum --scrub=all --root=epel-6-x86_64 --resultdir=./dist --rebuild $(newsrpm)
-
 el7: dist/*.el7.noarch.rpm
 
 dist/*.el7.noarch.rpm: build *.src.rpm
@@ -49,12 +43,6 @@ dist/*.el8.noarch.rpm: build *.src.rpm
 	@echo "Building el8 noarch Binary RPMs for mock..."
 	mock --verbose --dnf --scrub=all --root=epel-8-x86_64 --resultdir=./dist --rebuild $(newsrpm)
 
-fc31: dist/*.fc31.noarch.rpm
-
-dist/*.fc31.noarch.rpm: build *.src.rpm 
-	@echo "Building fc31 noarch Binary RPMs for mock..."
-	mock --verbose --dnf --scrub=all --root=fedora-31-x86_64 --resultdir=./dist --rebuild $(newsrpm)
-
 fc32: dist/*.fc32.noarch.rpm
 
 dist/*.fc32.noarch.rpm: build *.src.rpm 
@@ -66,4 +54,10 @@ fc33: dist/*.fc33.noarch.rpm
 dist/*.fc33.noarch.rpm: build *.src.rpm 
 	@echo "Building fc33 noarch Binary RPMs for mock..."
 	mock --verbose --dnf --scrub=all --root=fedora-33-x86_64 --resultdir=./dist --rebuild $(newsrpm)
+
+fc34: dist/*.fc34.noarch.rpm
+
+dist/*.fc34.noarch.rpm: build *.src.rpm 
+	@echo "Building fc34 noarch Binary RPMs for mock..."
+	mock --verbose --dnf --scrub=all --root=fedora-34-x86_64 --resultdir=./dist --rebuild $(newsrpm)
 
