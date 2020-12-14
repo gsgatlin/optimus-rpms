@@ -1,6 +1,6 @@
-.PHONY: clean install all srpm fc32 fc33 fc34 el6 el7 el8
+.PHONY: clean install all srpm fc32 fc33 fc34 el7 el8
 .SUFFIXES: .spec .rpm
-all: build *.src.rpm dist/*.el6.x86_64.rpm dist/*.el7.x86_64.rpm \
+all: build *.src.rpm dist/*.el7.x86_64.rpm \
 dist/*.el8.x86_64.rpm dist/*.fc32.x86_64.rpm dist/*.fc33.x86_64.rpm \
 dist/*.fc34.x86_64.rpm
 
@@ -31,12 +31,6 @@ srpm: *.src.rpm
 	
 newsrpm = $(shell \ls --color=never *.src.rpm)
 
-el6: dist/*.el6.x86_64.rpm
-
-dist/*.el6.x86_64.rpm: build *.src.rpm
-	@echo "Building el6 x86_64 Binary RPMs for mock..."
-	mock --verbose --yum --scrub=all --root=epel-6-x86_64 --resultdir=./dist --rebuild $(newsrpm)
-
 el7: dist/*.el7.x86_64.rpm
 
 dist/*.el7.x86_64.rpm: build *.src.rpm
@@ -48,7 +42,6 @@ el8: dist/*.el8.x86_64.rpm
 dist/*.el8.x86_64.rpm: build *.src.rpm
 	@echo "Building el8 x86_64 Binary RPMs for mock..."
 	mock --verbose --dnf --scrub=all --root=epel-8-x86_64 --resultdir=./dist --rebuild $(newsrpm)
-
 
 fc32: dist/*.fc32.x86_64.rpm
 
