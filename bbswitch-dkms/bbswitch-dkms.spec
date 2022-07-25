@@ -6,7 +6,7 @@ Summary:        Linux kernel module for Bumblebee
 Name:           %{module}-dkms
 Version:        0.8.0
 URL:            https://github.com/Bumblebee-Project/bbswitch/
-Release:        4%{?dist}
+Release:        5%{?dist}
 License:        GPLv3
 Group:          System Environment/Base
 Source0:        %{module}-0.8.tar.gz
@@ -14,6 +14,7 @@ Source1:        %{module}.conf
 Source2:        %{module}.modules
 Patch0:         %{module}-412.patch
 Patch1:         %{module}-56.patch
+Patch2:         %{module}-518.patch
 BuildRoot:      %{_tmppath}/%{name}-root
 %ifarch i686
 %if 0%{?fedora} >=15
@@ -46,6 +47,7 @@ install bbswitch-dkms.
 %patch0 -p1 -b .4.12fix
 %endif
 %patch1 -p1 -b .5.6fix
+%patch2 -p1 -b .518fix
 
 
 %build
@@ -110,6 +112,8 @@ exit 0
 %endif
 
 %changelog
+* Wed Jul 13 2022 Gary Gatling <gsgatlin@ncsu.edu> - 0.8.0-5
+- add kernel 5.18 patch.
 * Tue Apr 28 2020 Gary Gatling <gsgatlin@ncsu.edu> - 0.8.0-4
 - add kernel 5.6 patch.
 * Fri Aug 4 2017 Gary Gatling <gsgatlin@ncsu.edu> - 0.8.0-3
